@@ -20,18 +20,21 @@ import { setupCachePersistence } from "@/lib/cache-persistence";
 import { split } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createWsLink } from "@/lib/subscription-client";
+import { auth } from "@/lib/firebase";
 
 const httpLink = createHttpLink({
   uri: process.env.NEXT_PUBLIC_HASURA_GRAPHQL_URL,
   fetchOptions: { cache: "no-store" },
 });
 
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext(async (_, { headers }) => {
+  const currentUser = auth.currentUser;
+  const token = currentUser ? await currentUser.getIdToken() : null;
+
   return {
     headers: {
       ...headers,
-      "x-hasura-admin-secret": process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET,
-      "x-hasura-role": "admin",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   };
 });
