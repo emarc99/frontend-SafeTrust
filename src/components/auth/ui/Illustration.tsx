@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-export default function Illustration() {
+export default function Illustration({ className }: { className?: string }) {
    return (
-     <div className="relative hidden md:block md:w-1/2 dark:bg-gray-900">
+     <div className={`relative hidden md:block md:w-1/2 dark:bg-gray-900 ${className || ""}`}>
        <div className="absolute mt-[15rem] inset-0 flex items-center justify-center">
          <Image
            src="/img/hotels.png"

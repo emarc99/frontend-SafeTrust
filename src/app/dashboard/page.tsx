@@ -11,6 +11,7 @@ import { getRoleBasedRedirect, getUserRole } from "@/utils/role-utils";
 import { Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const DashboardPage = () => {
   const router = useRouter();
