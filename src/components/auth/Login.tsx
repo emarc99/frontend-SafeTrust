@@ -227,7 +227,7 @@ export default function LoginPage() {
       </div>
 
       <div className="hidden md:flex w-1/2 bg-gray-50 dark:bg-gray-900 items-center justify-center transition-colors duration-300">
-        <Illustration className="dark:opacity-20 dark:brightness-75 transition-opacity duration-300" />
+        <Illustration />
       </div>
 
       <MainWalletSelectionModal
