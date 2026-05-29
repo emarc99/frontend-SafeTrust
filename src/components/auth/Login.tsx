@@ -86,7 +86,7 @@ export default function LoginPage() {
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>
-      <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2 dark:bg-gray-800">
+      <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2 dark:bg-gray-900">
         <div className="w-full max-w-sm space-y-6">
           <div className="flex items-center space-x-2">
             <Image
@@ -97,14 +97,14 @@ export default function LoginPage() {
               className="h-10 w-10 shrink-0"
               priority
             />
-            <h1 className="text-2xl font-bold">SafeTrust</h1>
+            <h1 className="text-2xl font-bold dark:text-white">SafeTrust</h1>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-gray-700 dark:text-gray-100"
+                className="text-gray-700 dark:text-gray-200"
               >
                 Email or username
               </Label>
@@ -118,7 +118,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-gray-700 dark:text-gray-100"
+                className="text-gray-700 dark:text-gray-200"
               >
                 Password
               </Label>
@@ -138,7 +138,7 @@ export default function LoginPage() {
                 />
                 <label
                   htmlFor="remember"
-                  className="text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-100"
+                  className="text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-200"
                 >
                   Remember me
                 </label>
@@ -155,14 +155,18 @@ export default function LoginPage() {
               Login
             </Button>
 
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
+            {error ? (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            ) : null}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="bg-gray-200 dark:bg-gray-600" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground dark:bg-gray-800 dark:text-gray-400">
+                <span className="bg-white px-2 text-muted-foreground dark:bg-gray-900 dark:text-gray-400">
                   or
                 </span>
               </div>
@@ -170,7 +174,7 @@ export default function LoginPage() {
 
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
               onClick={handleGoogleLogin}
               disabled={isLoading}
             >
@@ -223,7 +227,7 @@ export default function LoginPage() {
       </div>
 
       <div className="hidden md:flex w-1/2 bg-gray-50 dark:bg-gray-900 items-center justify-center transition-colors duration-300">
-        <Illustration className="dark:opacity-20 dark:brightness-75" />
+        <Illustration className="dark:opacity-20 dark:brightness-75 transition-opacity duration-300" />
       </div>
 
       <MainWalletSelectionModal
