@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMultiWallet } from "@/components/auth/wallet/hooks/useMultiWallet";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -62,14 +63,16 @@ export function Sidebar({ isOpen, onClose, className }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Logo / Header */}
-          <div className="flex items-center justify-between h-16 px-6 border-b">
+          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
             <Link href="/dashboard" className="flex items-center gap-2">
               <span className="text-2xl">🔐</span>
-              <span className="font-bold text-xl tracking-tight">SafeTrust</span>
+              <span className="font-bold text-xl tracking-tight dark:text-white">
+                SafeTrust
+              </span>
             </Link>
             <button
               onClick={onClose}
-              className="md:hidden p-2 hover:bg-accent rounded-full"
+              className="md:hidden p-2 hover:bg-accent dark:hover:bg-gray-700 rounded-full"
             >
               <X className="w-5 h-5" />
             </button>
@@ -86,9 +89,9 @@ export function Sidebar({ isOpen, onClose, className }: SidebarProps) {
                   href={link.href}
                   onClick={onClose}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
                     isActive
-                      ? "bg-primary text-primary-foreground font-medium dark:bg-gray-800 dark:text-white"
+                      ? "bg-primary text-primary-foreground font-medium dark:bg-gray-700 dark:text-white"
                       : "hover:bg-accent text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -103,12 +106,14 @@ export function Sidebar({ isOpen, onClose, className }: SidebarProps) {
           </nav>
 
           {/* Footer Area */}
-          <div className="p-4 border-t space-y-4">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+            <ThemeToggle />
+
             {/* Network Badge */}
-            <div className="flex items-center justify-between px-3 py-2 bg-accent/50 rounded-lg">
+            <div className="flex items-center justify-between px-3 py-2 bg-accent/50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <span className="text-xs font-medium">Network</span>
+                <Globe className="w-4 h-4 text-muted-foreground dark:text-gray-400" />
+                <span className="text-xs font-medium dark:text-gray-300">Network</span>
               </div>
               <span
                 className={cn(
@@ -125,7 +130,7 @@ export function Sidebar({ isOpen, onClose, className }: SidebarProps) {
             {/* Disconnect Button */}
             <button
               onClick={handleDisconnect}
-              className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
+              className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5" />
               <span>Disconnect</span>
