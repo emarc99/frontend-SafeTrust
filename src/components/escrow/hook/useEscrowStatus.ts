@@ -57,7 +57,7 @@ export function useEscrowStatus({
           contractIds: [contractId],
           signer,
           validateOnChain,
-        });
+        } as any);
 
         // Return the first escrow (since we're querying by a single contractId)
         return Array.isArray(escrows) && escrows.length > 0 ? escrows[0] : null;
@@ -87,7 +87,7 @@ export function getEscrowStatusString(
 
   // Handle single-release escrow status
   if ('status' in escrow && escrow.status) {
-    return escrow.status;
+    return escrow.status as any;
   }
 
   // Handle multi-release escrow - determine status based on milestones

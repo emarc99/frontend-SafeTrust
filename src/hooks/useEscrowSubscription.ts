@@ -1,4 +1,3 @@
-import { ErrorLike } from "@apollo/client/errors";
 import { useSubscription } from "@apollo/client/react";
 import { useRef } from "react";
 import { toast } from "react-toastify";
@@ -10,7 +9,7 @@ const TOAST_DEBOUNCE_MS = 3000;
 export type EscrowSubscriptionResult = {
   escrow: EscrowStatusSubscription["escrow_transactions_by_pk"] | null;
   loading: boolean;
-  error: ErrorLike | undefined;
+  error: any;
 };
 
 export function useEscrowSubscription(
