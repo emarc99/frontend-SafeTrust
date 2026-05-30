@@ -8,6 +8,7 @@ import { CacheStatus } from "@/components/performance/CacheStatus";
 import { Button } from "@/components/ui/button";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { getRoleBasedRedirect, getUserRole } from "@/utils/role-utils";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
