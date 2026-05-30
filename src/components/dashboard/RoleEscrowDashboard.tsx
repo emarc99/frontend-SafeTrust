@@ -66,7 +66,7 @@ export interface Milestone {
   completedAt?: string;
 }
 
-interface EscrowDashboardProps {
+interface RoleEscrowDashboardProps {
   userRole: 'guest' | 'hotel' | 'admin';
   escrows?: EscrowData[];
   notifications?: NotificationData[];
@@ -75,14 +75,14 @@ interface EscrowDashboardProps {
   onRefresh?: () => void;
 }
 
-export function EscrowDashboard({ 
+export function RoleEscrowDashboard({ 
   userRole, 
   escrows = [], 
   notifications: initialNotifications = [], 
   isLoading = false, 
   error = null,
   onRefresh 
-}: EscrowDashboardProps) {
+}: RoleEscrowDashboardProps) {
   const [notifications, setNotifications] = useState<NotificationData[]>(initialNotifications);
   const [isPolling, setIsPolling] = useState(false);
 
