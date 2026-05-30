@@ -16,7 +16,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm dark:border-b dark:border-gray-800 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex h-16 items-center gap-3 overflow-hidden sm:gap-4">
+          <div className="flex h-16 items-center gap-3 sm:gap-4">
             <div className="flex min-w-0 items-center gap-2">
               <Button
                 variant="ghost"
