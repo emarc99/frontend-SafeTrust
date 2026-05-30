@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * EscrowDashboard Component
+ * WalletEscrowDashboard Component
  *
  * Main dashboard for monitoring escrow status across different roles.
  * Integrates with TrustlessWork API endpoints to fetch and display escrows.
@@ -14,7 +14,7 @@
  *
  * @example
  * ```tsx
- * <EscrowDashboard />
+ * <WalletEscrowDashboard />
  * ```
  */
 
@@ -24,7 +24,7 @@ import { useEscrowsBySignerQuery } from '@/components/tw-blocks/tanstack/useEscr
 import { useWalletContext } from '@/components/tw-blocks/wallet-kit/WalletProvider';
 import type { GetEscrowsFromIndexerResponse } from '@trustless-work/escrow/types';
 
-interface EscrowDashboardProps {
+interface WalletEscrowDashboardProps {
   /**
    * Optional custom wallet address (defaults to connected wallet)
    */
@@ -55,12 +55,12 @@ interface EscrowDashboardProps {
  * - As Hotel (Marker): Escrows where user is the marker
  * - Platform Managed (Releaser): Escrows where user is the releaser
  */
-export function EscrowDashboard({
+export function WalletEscrowDashboard({
   walletAddress,
   validateOnChain = true,
   onEscrowClick,
   className = '',
-}: EscrowDashboardProps) {
+}: WalletEscrowDashboardProps) {
   // Get wallet address from connected wallet or prop
   const { walletAddress: connectedAddress } = (useWalletContext?.() ?? {}) as { walletAddress?: string | null };
   const address = walletAddress || connectedAddress;
