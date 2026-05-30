@@ -72,6 +72,12 @@ export interface Milestone {
   completedAt?: string;
 }
 
+const formatNotificationTimestamp = (timestamp: string) => {
+  if (!timestamp) return "—";
+  const date = new Date(timestamp);
+  return isNaN(date.getTime()) ? "—" : date.toLocaleString();
+};
+
 interface EscrowDashboardProps {
   userRole: "guest" | "hotel" | "admin";
   escrows?: EscrowData[];
@@ -463,9 +469,7 @@ export function EscrowDashboard({
                               {notification.message}
                             </p>
                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(
-                                notification.timestamp,
-                              ).toLocaleString()}
+                              {formatNotificationTimestamp(notification.timestamp)}
                             </p>
                           </div>
                         </div>
