@@ -127,7 +127,7 @@ export function EscrowDashboard({
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Please connect your wallet to view your escrow dashboard
           </p>
-          <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+          <button className="px-4 py-2 bg-primary dark:bg-primary/80 text-white rounded-md hover:bg-primary/90 dark:hover:bg-primary/70 transition-colors">
             Connect Wallet
           </button>
         </div>
