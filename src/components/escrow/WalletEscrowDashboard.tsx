@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * EscrowDashboard Component
+ * WalletEscrowDashboard Component
  *
  * Main dashboard for monitoring escrow status across different roles.
  * Integrates with TrustlessWork API endpoints to fetch and display escrows.
@@ -14,7 +14,7 @@
  *
  * @example
  * ```tsx
- * <EscrowDashboard />
+ * <WalletEscrowDashboard />
  * ```
  */
 
