@@ -58,7 +58,6 @@ export default function LoginPage() {
       }
 
       setToken(firebaseToken);
-      router.push("/dashboard");
     } catch (err: unknown) {
       if (
         typeof err === "object" &&
