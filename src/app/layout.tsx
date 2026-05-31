@@ -4,6 +4,7 @@ import "../../public/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { ApolloClientProvider } from "@/providers/ApolloProviderWrapper";
+import { QueryProvider } from "@/providers/QueryProvider";
 import ErrorSuppressor from "@/components/ErrorSuppressor";
 import { TrustlessWorkProvider as OldTrustlessWorkProvider } from "@/components/tw-blocks/providers/TrustlessWork";
 import { TrustlessWorkProvider } from "@/lib/trustless-work";
@@ -37,6 +38,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+               (function() {
+                 try {
+                   var theme = localStorage.getItem('safetrust-theme');
+                   var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches
+                     ? 'dark' : 'light';
+                   var resolved = (theme === 'dark' || theme === 'light') ? theme : preferred;
+                   if (resolved === 'dark') {
+                     document.documentElement.classList.add('dark');
+                   } else {
+                     document.documentElement.classList.remove('dark');
+                   }
+                 } catch (e) {}
+               })();
+            `,
+          }}
+        />
+      </head>
+      <QueryProvider>
       <TrustlessWorkProvider>
         <WalletProvider>
           <EscrowProvider>
@@ -68,6 +91,7 @@ export default function RootLayout({
           </EscrowProvider>
         </WalletProvider>
       </TrustlessWorkProvider>
+      </QueryProvider>
     </html>
   );
 }

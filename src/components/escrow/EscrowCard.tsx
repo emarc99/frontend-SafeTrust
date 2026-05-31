@@ -92,15 +92,15 @@ export function EscrowCard({
         {/* Loading state */}
         {isLoading && (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary dark:border-white"></div>
           </div>
         )}
 
         {/* Error state */}
         {error && !isLoading && (
           <div className="text-center py-8">
-            <div className="text-red-500 text-sm mb-2">Failed to load escrows</div>
-            <p className="text-xs text-gray-500">{error.message}</p>
+            <div className="text-red-500 dark:text-red-400 text-sm mb-2">Failed to load escrows</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{error.message}</p>
           </div>
         )}
 
@@ -170,10 +170,10 @@ function EscrowItem({
   // Extract escrow details
   const title = escrow.title || 'Untitled Escrow';
   const amount = escrow.amount || 0;
-  const asset = escrow.asset?.code || 'XLM';
-  const contractId = escrow.contractId;
+  const asset = (escrow as any).asset?.code || 'XLM';
+  const contractId: string | undefined = (escrow as any).contractId ?? undefined;
   const createdAt = escrow.createdAt
-    ? new Date(escrow.createdAt).toLocaleDateString()
+    ? new Date((escrow as any).createdAt as any).toLocaleDateString()
     : 'N/A';
 
   return (
@@ -183,16 +183,22 @@ function EscrowItem({
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold truncate">{title}</h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-            {contractId.substring(0, 8)}...{contractId.substring(contractId.length - 6)}
-          </p>
+          <h4 className="text-sm font-semibold truncate dark:text-white">{title}</h4>
+          {contractId ? (
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {contractId.substring(0, 8)}...{contractId.substring(contractId.length - 6)}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-500 dark:text-gray-400 italic">Missing contract ID</p>
+          )}
         </div>
-        <EscrowStatusBadge
-          escrowId={contractId}
-          signer={signer}
-          className="flex-shrink-0"
-        />
+        {contractId && (
+          <EscrowStatusBadge
+            escrowId={contractId}
+            signer={signer}
+            className="flex-shrink-0"
+          />
+        )}
       </div>
 
       <div className="flex items-center justify-between text-xs">

@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Wallet } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -10,17 +13,19 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Illustration from "@/components/auth/ui/Illustration";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
 import { useMultiWallet } from "./wallet/hooks/multi-wallet.hook";
 import { MainWalletSelectionModal } from "./wallet/components/MainWalletSelectionModal";
 import { WalletSelectionModal } from "./wallet/components/WalletSelectionModal";
 import { MetaMaskWalletModal } from "./wallet/components/MetaMaskWalletModal";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function LoginPage() {
-  const { address } = useGlobalAuthenticationStore();
-  const { 
-    handleConnect, 
+  const { address, token, setToken } = useGlobalAuthenticationStore();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const {
+    handleConnect,
     isMainModalOpen,
     isStellarModalOpen,
     isMetaMaskModalOpen,
@@ -29,70 +34,150 @@ export default function LoginPage() {
     closeMetaMaskModal,
     handleWalletTypeSelected,
     handleStellarWalletSelected,
-    handleMetaMaskSelected
+    handleMetaMaskSelected,
   } = useMultiWallet();
   const router = useRouter();
 
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setError("");
 
+    try {
+      const provider = new GoogleAuthProvider();
+      const credential = await signInWithPopup(auth, provider);
+      const firebaseToken = await credential.user.getIdToken();
+      const response = await fetch("/api/auth/sync-user", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${firebaseToken}`,
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to sync user");
+      }
+
+      setToken(firebaseToken);
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        err.code === "auth/popup-closed-by-user"
+      ) {
+        return;
+      }
+
+      setError("Google sign-in failed — please try again");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (address) {
+    if (address || token) {
       router.push("/dashboard");
     }
-  }, [address, router]);
+  }, [address, router, token]);
 
   return (
-    <div className="flex min-h-screen">
-      <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2">
+    <div className="relative flex min-h-screen bg-white dark:bg-gray-900">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2 dark:bg-gray-900">
         <div className="w-full max-w-sm space-y-6">
           <div className="flex items-center space-x-2">
-            <Image src="/img/logo.png" alt="SafeTrust" width={32} height={32} />
-            <h1 className="text-2xl font-bold">SafeTrust</h1>
+            <Image
+              src="/img/logo-new.png"
+              alt="SafeTrust"
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0"
+              priority
+            />
+            <h1 className="text-2xl font-bold dark:text-white">SafeTrust</h1>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email or username</Label>
-              <Input id="email" type="email" placeholder="Enter your email" />
+              <Label
+                htmlFor="email"
+                className="text-gray-700 dark:text-gray-200"
+              >
+                Email or username
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
+              <Label
+                htmlFor="password"
+                className="text-gray-700 dark:text-gray-200"
+              >
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+              />
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
+                <Checkbox
+                  id="remember"
+                  className="border-gray-300 data-[state=checked]:bg-[#2857B8] data-[state=checked]:border-[#2857B8] dark:border-gray-400 dark:data-[state=checked]:bg-blue-500 dark:data-[state=checked]:border-blue-500"
+                />
                 <label
                   htmlFor="remember"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-200"
                 >
                   Remember me
                 </label>
               </div>
               <Link
                 href="/forgot-password"
-                className="text-sm text-[#2857B8] hover:underline"
+                className="text-sm text-[#2857B8] hover:underline dark:text-blue-400"
               >
                 Forgot your password?
               </Link>
             </div>
 
-            <Button className="w-full bg-[#2857B8] hover:bg-[#2857B8]/90">
+            <Button className="w-full bg-[#2857B8] hover:bg-[#2857B8]/90 text-white dark:bg-gray-700 dark:hover:bg-gray-600">
               Login
             </Button>
 
+            {error ? (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            ) : null}
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator />
+                <Separator className="bg-gray-200 dark:bg-gray-600" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">or</span>
+                <span className="bg-white px-2 text-muted-foreground dark:bg-gray-900 dark:text-gray-400">
+                  or
+                </span>
               </div>
             </div>
 
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+            >
               <svg
                 className="mr-2 h-4 w-4"
                 viewBox="0 0 24 24"
@@ -115,30 +200,36 @@ export default function LoginPage() {
                   fill="#EA4335"
                 />
               </svg>
-              Login with Google
+              {isLoading ? "Connecting to Google..." : "Login with Google"}
             </Button>
 
             <Button
               variant="outline"
-              className="w-full bg-black text-white"
+              className="w-full bg-black text-white border-black hover:bg-black/90 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-600"
               onClick={handleConnect}
+              disabled={isLoading}
             >
               <Wallet className="mr-2 h-4 w-4" />
               Login with wallet
             </Button>
           </div>
 
-          <div className="text-center text-sm">
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#2857B8] hover:underline">
+            <Link
+              href="/register"
+              className="text-[#2857B8] hover:underline dark:text-blue-400"
+            >
               Register here
             </Link>
           </div>
         </div>
       </div>
 
-      <Illustration />
-      
+      <div className="hidden md:flex w-1/2 bg-gray-50 dark:bg-gray-900 items-center justify-center transition-colors duration-300">
+        <Illustration />
+      </div>
+
       <MainWalletSelectionModal
         isOpen={isMainModalOpen}
         onClose={closeMainModal}
@@ -156,7 +247,6 @@ export default function LoginPage() {
         onClose={closeMetaMaskModal}
         onWalletConnected={handleMetaMaskSelected}
       />
-
     </div>
   );
 }

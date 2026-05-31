@@ -20,32 +20,41 @@ import { setupCachePersistence } from "@/lib/cache-persistence";
 import { split } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createWsLink } from "@/lib/subscription-client";
+import { auth } from "@/lib/firebase";
 
 const httpLink = createHttpLink({
   uri: process.env.NEXT_PUBLIC_HASURA_GRAPHQL_URL,
   fetchOptions: { cache: "no-store" },
 });
 
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext(async (_, { headers }) => {
+  const currentUser = auth.currentUser;
+  const token = currentUser ? await currentUser.getIdToken() : null;
+
   return {
     headers: {
       ...headers,
-      "x-hasura-admin-secret": process.env.NEXT_PUBLIC_HASURA_ADMIN_SECRET,
-      "x-hasura-role": "admin",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   };
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
+const errorLink = onError((error) => {
+  const gqlErrors = (error as any).graphQLErrors as readonly any[] | undefined;
+  if (gqlErrors && gqlErrors.length > 0) {
+    gqlErrors.forEach((gqlErr: any) => {
+      const { message, locations, path } = gqlErr || {};
       console.error(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-      ),
-    );
-  if (networkError) {
-    console.error(`[Network error]: ${networkError}`);
-    toast.error(`Network error: ${networkError.message}`);
+        `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}`,
+      );
+    });
+  }
+  const netErr = (error as any).networkError as Error | undefined;
+  if (netErr) {
+    console.error(`[Network error]: ${netErr}`);
+    if ((netErr as any)?.message) {
+      toast.error(`Network error: ${(netErr as any).message}`);
+    }
   }
 });
 
@@ -82,7 +91,6 @@ export const apolloClient = new ApolloClient({
       httpChain
     );
   })(),
-  connectToDevTools: process.env.NODE_ENV === "development",
   defaultOptions: {
     watchQuery: {
       fetchPolicy: "cache-and-network",
