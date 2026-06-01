@@ -95,52 +95,66 @@ export function EscrowDashboard({
   error = null,
   onRefresh,
 }: EscrowDashboardProps) {
-  const [notifications, setNotifications] =
-    useState<NotificationData[]>(initialNotifications);
-  const [isPolling, setIsPolling] = useState(false);
+   const [notifications, setNotifications] =
+     useState<NotificationData[]>(initialNotifications);
+   const [isPolling, setIsPolling] = useState(false);
+   const isMountedRef = useRef(true);
+   const isPollingRef = useRef(false);
 
-  // Real-time updates using Trustless Work notifications
-  useEffect(() => {
-    if (isLoading) return;
+   // Real-time updates using Trustless Work notifications
+   useEffect(() => {
+     if (isLoading) return;
 
-    const checkUpdates = async () => {
-      try {
-        setIsPolling(true);
-        const pendingNotifications = await checkPendingNotifications();
-        const milestoneUpdates = await checkMilestoneNotifications();
+     const checkUpdates = async () => {
+       // Prevent overlapping requests
+       if (isPollingRef.current) return;
+       isPollingRef.current = true;
 
-        // Combine and deduplicate notifications
-        const allNotifications = [...pendingNotifications, ...milestoneUpdates];
-        const uniqueNotifications = allNotifications.filter(
-          (notif, index, self) =>
-            index === self.findIndex((n) => n.id === notif.id),
-        );
+       try {
+         if (isMountedRef.current) setIsPolling(true);
+         const pendingNotifications = await checkPendingNotifications();
+         const milestoneUpdates = await checkMilestoneNotifications();
 
-        if (uniqueNotifications.length > 0) {
-          setNotifications((prev) => {
-            // Merge with existing notifications, avoiding duplicates
-            const existingIds = new Set(prev.map((n) => n.id));
-            const newNotifications = uniqueNotifications.filter(
-              (n) => !existingIds.has(n.id),
-            );
-            return [...prev, ...newNotifications];
-          });
-        }
-      } catch (error) {
-        console.error("Error checking for updates:", error);
-      } finally {
-        setIsPolling(false);
-      }
-    };
+         // Combine and deduplicate notifications
+         const allNotifications = [...pendingNotifications, ...milestoneUpdates];
+         const uniqueNotifications = allNotifications.filter(
+           (notif, index, self) =>
+             index === self.findIndex((n) => n.id === notif.id),
+         );
 
-    // Initial check
-    checkUpdates();
+         if (uniqueNotifications.length > 0 && isMountedRef.current) {
+           setNotifications((prev) => {
+             // Merge with existing notifications, avoiding duplicates
+             const existingIds = new Set(prev.map((n) => n.id));
+             const newNotifications = uniqueNotifications.filter(
+               (n) => !existingIds.has(n.id),
+             );
+             return [...prev, ...newNotifications];
+           });
+         }
+       } catch (error) {
+         console.error("Error checking for updates:", error);
+       } finally {
+         isPollingRef.current = false;
+         if (isMountedRef.current) {
+           setIsPolling(false);
+         }
+       }
+     };
 
-    // Poll every 15 seconds
-    const interval = setInterval(checkUpdates, 15000);
+     // Initial check
+     checkUpdates();
 
-    return () => clearInterval(interval);
-  }, [isLoading]);
+     // Poll every 15 seconds
+     const interval = setInterval(checkUpdates, 15000);
+
+     // Cleanup function
+     return () => {
+       isMountedRef.current = false;
+       isPollingRef.current = false;
+       clearInterval(interval);
+     };
+   }, [isLoading]);
 
   if (isLoading) {
     return (

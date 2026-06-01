@@ -104,18 +104,27 @@ export function EscrowStatusCard({
 
       <CardContent className="flex-grow">
         <div className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount:</span>
-            <span className="font-medium dark:text-white">
-              {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency:
-                  escrow.asset.code === "XLM" ? "USD" : escrow.asset.code,
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 6,
-              }).format(escrow.amount)}
-            </span>
-          </div>
+           <div className="flex justify-between text-sm">
+             <span className="text-muted-foreground">Amount:</span>
+             <span className="font-medium dark:text-white">
+               {(() => {
+                 try {
+                   return new Intl.NumberFormat("en-US", {
+                     style: "currency",
+                     currency:
+                       escrow.asset.code === "XLM" ? "USD" : escrow.asset.code,
+                     minimumFractionDigits: 2,
+                     maximumFractionDigits: 6,
+                   }).format(escrow.amount);
+                 } catch (e) {
+                   // Fallback to a simple format
+                   const currency =
+                     escrow.asset.code === "XLM" ? "USD" : escrow.asset.code;
+                   return `${currency} ${escrow.amount.toFixed(2)}`;
+                 }
+               })()}
+             </span>
+           </div>
 
           {escrow.metadata?.hotelName && (
             <div className="flex justify-between text-sm">
