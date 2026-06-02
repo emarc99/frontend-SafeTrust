@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMultiWallet } from "@/components/auth/wallet/hooks/useMultiWallet";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 // Firebase and Store imports per Issue #313
 import { signOut } from "firebase/auth";
