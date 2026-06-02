@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getAddress } from "@stellar/freighter-api";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { WalletDetectionResult, WalletType } from "../types/wallet.types";
+import { useRouter } from "next/navigation";
 
 /**
  * Attempts to retrieve the Stellar public key from the Freighter extension.
@@ -43,7 +44,8 @@ export const useWalletDetection = (): WalletDetectionResult & {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-
+  const router = useRouter();
+  
   useEffect(() => {
     const detectWallets = async () => {
       setIsLoading(true);
@@ -59,10 +61,9 @@ export const useWalletDetection = (): WalletDetectionResult & {
         if (freighterInstalled) {
           freighterAddress = await retrieveFreighterAddress();
 
-          // Persist to global auth store so downstream components can
-          // consume the address without issuing a second getAddress() call.
           if (freighterAddress) {
             useGlobalAuthenticationStore.getState().setAddress(freighterAddress);
+            router.push("/dashboard");
           }
         }
 
