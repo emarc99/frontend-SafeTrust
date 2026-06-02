@@ -5,6 +5,7 @@ import { MetaMaskWalletModal } from "@/components/auth/wallet/components/MetaMas
 import { WalletSelectionModal } from "@/components/auth/wallet/components/WalletSelectionModal";
 import { useMultiWallet } from "@/components/auth/wallet/hooks/multi-wallet.hook";
 import { CacheStatus } from "@/components/performance/CacheStatus";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { getRoleBasedRedirect, getUserRole } from "@/utils/role-utils";
