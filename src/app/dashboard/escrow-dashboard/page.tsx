@@ -1,4 +1,4 @@
-import { EscrowDashboard } from '@/components/escrow/EscrowDashboard';
+import { WalletEscrowDashboard } from '@/components/escrow/WalletEscrowDashboard';
 
 export const metadata = {
 	title: 'Escrow Dashboard | SafeTrust',
@@ -6,6 +6,6 @@ export const metadata = {
 };
 
 export default function EscrowDashboardPage() {
-	return <EscrowDashboard />;
+	return <WalletEscrowDashboard />;
 }
 

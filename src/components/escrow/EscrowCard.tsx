@@ -75,7 +75,7 @@ export function EscrowCard({
   const roleColor = getRoleColor(role);
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow duration-200">
+    <Card className="h-full hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-lg">
           <span className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export function EscrowCard({
         {/* Empty state */}
         {!isLoading && !error && escrows.length === 0 && (
           <div className="text-center py-8">
-            <div className="text-gray-400 mb-2">
+            <div className="text-gray-400 dark:text-gray-400 mb-2">
               <svg
                 className="w-12 h-12 mx-auto"
                 fill="none"
@@ -123,7 +123,7 @@ export function EscrowCard({
               </svg>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">No escrows found</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">
               Escrows where you are the {role} will appear here
             </p>
           </div>
@@ -142,7 +142,7 @@ export function EscrowCard({
             ))}
 
             {escrows.length > 10 && (
-              <div className="text-center pt-2 border-t">
+              <div className="text-center pt-2 border-t dark:border-gray-700">
                 <button className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                   View all {escrows.length} escrows →
                 </button>
