@@ -1,11 +1,10 @@
-import { EscrowDashboard } from '@/components/escrow/EscrowDashboard';
+import { RoleEscrowDashboardPage } from "./RoleEscrowDashboardPage";
 
 export const metadata = {
-	title: 'Escrow Dashboard | SafeTrust',
-	description: 'Monitor and manage your escrows across all roles',
+  title: "Escrow Dashboard | SafeTrust",
+  description: "Monitor and manage your escrows across all roles",
 };
 
 export default function EscrowDashboardPage() {
-	return <EscrowDashboard />;
+  return <RoleEscrowDashboardPage />;
 }
-

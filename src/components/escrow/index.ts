@@ -3,7 +3,7 @@ export { XDRSigningFlow } from "./XDRSigningFlow";
 export { TransactionPreview } from "./TransactionPreview";
 
 // Escrow Dashboard Components
-export { EscrowDashboard } from "./EscrowDashboard";
+export { WalletEscrowDashboard, type WalletEscrowDashboardProps } from "./WalletEscrowDashboard";
 export { EscrowCard } from "./EscrowCard";
 export { EscrowStatusBadge } from "./EscrowStatusBadge";
 export { RealTimeEscrowStatus } from "./RealTimeEscrowStatus";
