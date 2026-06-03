@@ -21,6 +21,12 @@ interface UseEscrowStatusParams {
   validateOnChain?: boolean;
 }
 
+interface GetEscrowByContractIdsInput {
+  contractIds: string[];
+  signer: string;
+  validateOnChain?: boolean;
+}
+
 /**
  * Hook to fetch and monitor escrow status
  *
@@ -57,7 +63,7 @@ export function useEscrowStatus({
           contractIds: [contractId],
           signer,
           validateOnChain,
-        } as any);
+        } as GetEscrowByContractIdsInput);
 
         // Return the first escrow (since we're querying by a single contractId)
         return Array.isArray(escrows) && escrows.length > 0 ? escrows[0] : null;
