@@ -45,7 +45,7 @@ const Header: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-4 ml-auto">
+        <div className="flex items-center space-x-4 ml-auto pr-2">
           <button
             onClick={toggleMobileMenu}
             className="lg:hidden p-2 text-gray-800 dark:text-white focus:outline-none transition-transform duration-300 ease-in-out"
