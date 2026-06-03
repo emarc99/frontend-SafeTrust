@@ -1,4 +1,4 @@
-import { EscrowData, NotificationData } from '@/components/dashboard/EscrowDashboard';
+import { EscrowData, NotificationData } from '@/components/dashboard/RoleEscrowDashboard';
 
 // Helper function to generate random dates
 const randomDate = (start: Date, end: Date) => {

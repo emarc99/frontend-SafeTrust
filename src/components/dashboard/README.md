@@ -4,7 +4,7 @@ This directory contains the React components for the Escrow Monitoring Dashboard
 
 ## Components Overview
 
-### 1. EscrowDashboard (`EscrowDashboard.tsx`)
+### 1. RoleEscrowDashboard (`RoleEscrowDashboard.tsx`)
 The main container component that orchestrates all other dashboard components. It's a stateless component that receives all necessary data through props.
 
 **Props:**
@@ -60,7 +60,7 @@ A data table displaying escrow transactions with sorting and filtering capabilit
 ## Usage Example
 
 ```tsx
-<EscrowDashboard
+<RoleEscrowDashboard
   userRole="admin"
   escrows={escrowsData}
   notifications={notificationsData}
@@ -123,7 +123,7 @@ interface Milestone {
 ## Usage Example
 
 ```tsx
-import { EscrowDashboard } from './components/dashboard/EscrowDashboard';
+import { RoleEscrowDashboard } from './components/dashboard/RoleEscrowDashboard';
 
 function App() {
   // In a real app, this would come from your auth context
@@ -131,7 +131,7 @@ function App() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <EscrowDashboard userRole={userRole} />
+      <RoleEscrowDashboard userRole={userRole} />
     </div>
   );
 }
