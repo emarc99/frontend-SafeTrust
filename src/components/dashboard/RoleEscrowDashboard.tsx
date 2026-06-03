@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DashboardHeader } from "./DashboardHeader";
 import { EscrowsByStatus } from "./EscrowsByStatus";
 import { RecentActivity } from "./RecentActivity";
@@ -78,7 +78,7 @@ const formatNotificationTimestamp = (timestamp: string) => {
   return isNaN(date.getTime()) ? "—" : date.toLocaleString();
 };
 
-interface EscrowDashboardProps {
+interface RoleEscrowDashboardProps {
   userRole: "guest" | "hotel" | "admin";
   escrows?: EscrowData[];
   notifications?: NotificationData[];
@@ -87,19 +87,19 @@ interface EscrowDashboardProps {
   onRefresh?: () => void;
 }
 
-export function EscrowDashboard({
+export function RoleEscrowDashboard({
   userRole,
   escrows = [],
   notifications: initialNotifications = [],
   isLoading = false,
   error = null,
   onRefresh,
-}: EscrowDashboardProps) {
-   const [notifications, setNotifications] =
-     useState<NotificationData[]>(initialNotifications);
-   const [isPolling, setIsPolling] = useState(false);
-   const isMountedRef = useRef(true);
-   const isPollingRef = useRef(false);
+}: RoleEscrowDashboardProps) {
+  const [notifications, setNotifications] =
+    useState<NotificationData[]>(initialNotifications);
+  const [isPolling, setIsPolling] = useState(false);
+  const isMountedRef = useRef(true);
+  const isPollingRef = useRef(false);
 
    // Real-time updates using Trustless Work notifications
    useEffect(() => {

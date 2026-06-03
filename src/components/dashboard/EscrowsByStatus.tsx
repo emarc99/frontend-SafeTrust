@@ -1,6 +1,6 @@
 import { DollarSign, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EscrowData } from './EscrowDashboard';
+import { EscrowData } from './RoleEscrowDashboard';
 
 interface EscrowsByStatusProps {
   escrows: EscrowData[];

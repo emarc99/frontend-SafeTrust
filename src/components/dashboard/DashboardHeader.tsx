@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { NotificationData } from './EscrowDashboard';
+import { NotificationData } from './RoleEscrowDashboard';
 
 interface DashboardHeaderProps {
   userRole: 'guest' | 'hotel' | 'admin';
