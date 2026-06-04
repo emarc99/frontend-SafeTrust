@@ -98,7 +98,7 @@ export default function RegisterPage() {
         setError(
           ERROR_MESSAGES[fErr.code] ?? "Registration failed — please try again",
         );
-      } else if ((err as { name?: string })?.name === "AbortError") {
+      } else if (err instanceof Error && err.name === "AbortError") {
         setError("Registration timed out — please try again");
       } else {
         setError("Registration failed — please try again");
