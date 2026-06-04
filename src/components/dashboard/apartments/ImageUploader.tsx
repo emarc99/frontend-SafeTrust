@@ -46,7 +46,7 @@ function ImageSlot({
         }}
         aria-label={label}
         className={cn(
-          'relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gray-200 text-gray-500 transition hover:bg-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300',
+          'relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gray-200 text-gray-500 transition hover:bg-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 border border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600',
           large ? 'min-h-[240px]' : 'min-h-[74px]'
         )}
       >

@@ -114,6 +114,7 @@ export default function InterestedPeoplePage() {
 
   const mappedOffers: RentalOffer[] = offers.map((offer: any) => ({
     id: offer.id,
+    tenant_id: offer.tenant_id ?? null,
     tenant_name: offer.tenant_name,
     tenant_phone: offer.tenant_phone,
     tenant_wallet_address: offer.tenant_wallet_address,

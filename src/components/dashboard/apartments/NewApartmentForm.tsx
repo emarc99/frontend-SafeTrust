@@ -81,10 +81,10 @@ export function NewApartmentForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-gray-950">
+        <h1 className="text-3xl font-semibold tracking-tight text-gray-950 dark:text-gray-100">
           New apartment
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground dark:text-gray-400">
           Register a new apartment listing for guests to discover.
         </p>
       </div>
@@ -192,7 +192,7 @@ export function NewApartmentForm() {
               />
               <Label
                 htmlFor="pet-friendly"
-                className="cursor-pointer text-sm font-semibold text-gray-900"
+                className="cursor-pointer text-sm font-semibold text-gray-900 dark:text-gray-200"
               >
                 Pet friendly
               </Label>
@@ -211,7 +211,7 @@ export function NewApartmentForm() {
                 }))
               }
               placeholder="Describe the apartment, amenities, neighborhood and what makes it special."
-              className="min-h-[150px] resize-y bg-white"
+              className="min-h-[150px] resize-y bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
               required
             />
           </ApartmentFormField>

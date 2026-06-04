@@ -1,5 +1,5 @@
-import { ErrorLike } from "@apollo/client/errors";
 import { useSubscription } from "@apollo/client/react";
+import type { ErrorLike } from "@apollo/client/errors";
 import { useRef } from "react";
 import { toast } from "react-toastify";
 import { ESCROW_STATUS_SUBSCRIPTION } from "@/graphql/subscriptions/escrow-subscriptions";
