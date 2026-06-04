@@ -49,6 +49,13 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      setError("Server configuration error — please contact support");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const credential = await createUserWithEmailAndPassword(
         auth,
@@ -60,10 +67,24 @@ export default function RegisterPage() {
 
       const token = await credential.user.getIdToken();
 
-      const syncRes = await fetch("/api/auth/sync-user", {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const syncRes = await fetch(`${backendUrl}/api/auth/sync-user`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          phone_number: phone,
+          country_code: phoneCountryCode,
+          location,
+        }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!syncRes.ok) {
         throw new Error("SYNC_USER_FAILED");
@@ -73,10 +94,12 @@ export default function RegisterPage() {
       router.push("/dashboard");
     } catch (err: unknown) {
       if (err instanceof FirebaseError) {
+        const fErr = err as any;
         setError(
-          ERROR_MESSAGES[err.code] ??
-            "Registration failed — please try again",
+          ERROR_MESSAGES[fErr.code] ?? "Registration failed — please try again",
         );
+      } else if (err instanceof Error && err.name === "AbortError") {
+        setError("Registration timed out — please try again");
       } else {
         setError("Registration failed — please try again");
       }

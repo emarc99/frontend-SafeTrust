@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const DashboardPage = () => {
   const router = useRouter();

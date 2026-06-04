@@ -5,7 +5,6 @@ const AUTHENTICATION_ACTIONS = {
   CONNECT_WALLET: "authentication/connect",
   SET_TOKEN: "authentication/set-token",
   DISCONNECT_WALLET: "authentication/disconnect",
-  SET_TOKEN: "authentication/setToken",
 } as const;
 
 export const useGlobalAuthenticationSlice: StateCreator<
@@ -36,7 +35,11 @@ export const useGlobalAuthenticationSlice: StateCreator<
         AUTHENTICATION_ACTIONS.DISCONNECT_WALLET,
       ),
 
-    setToken: (token: string) =>
-      set({ token }, false, AUTHENTICATION_ACTIONS.SET_TOKEN),
+    clearAuth: () =>
+      set(
+        { address: "", name: "", token: "" },
+        false,
+        AUTHENTICATION_ACTIONS.DISCONNECT_WALLET,
+      ),
   };
 };
