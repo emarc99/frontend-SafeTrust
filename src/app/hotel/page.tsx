@@ -7,7 +7,7 @@ import {
   FilterSidebar,
   HotelHeader,
 } from '@/components/hotel';
-import { STUB_HOTELS } from '@/mockData/hotels';
+import { STUB_HOTELS } from '@/lib/mockData/hotels';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { BsSortDownAlt } from 'react-icons/bs';

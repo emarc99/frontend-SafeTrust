@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { BEDROOM_FILTERS } from '@/mockData/hotels';
+import { BEDROOM_FILTERS } from '@/lib/mockData/hotels';
 
 interface BedroomTabsProps {
   selected: string;

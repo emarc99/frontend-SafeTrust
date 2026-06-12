@@ -1,6 +1,6 @@
 'use client';
 
-import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from '@/mockData/hotels';
+import { HOTEL_CATEGORIES, HOTEL_LOCATIONS } from '@/lib/mockData/hotels';
 import { cn } from '@/lib/utils';
 import { formatListingPrice } from './formatListingPrice';
 
