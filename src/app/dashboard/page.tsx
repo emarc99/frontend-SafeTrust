@@ -4,11 +4,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useGlobalAuthenticationStore } from "@/core/store/data";
 import { Wallet } from "lucide-react";
 
 const DashboardPage = () => {
-  const { address, setAddress } = useGlobalAuthenticationStore();
+  const [address, setAddress] = useState<string>("");
 
   // CHANGED: local mock connect/disconnect — no wallet SDK needed
   const handleConnect = () => {
