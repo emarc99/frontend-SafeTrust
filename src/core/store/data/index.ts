@@ -1,20 +1,10 @@
-import { persist } from "zustand/middleware";
+// frontend-SafeTrust/src/core/store/data/index.ts
+
 import { create } from "zustand";
-import { useGlobalAuthenticationSlice } from "./slices/authentication.slice";
-import { AuthenticationGlobalStore } from "./@types/authentication.entity";
 import { devtools } from "zustand/middleware";
+import { AuthenticationGlobalStore } from "./@types/authentication.entity";
+import { useGlobalAuthenticationSlice } from "./slices/authentication.slice";
 
-type AuthState = AuthenticationGlobalStore;
-
-export const useGlobalAuthenticationStore = create<AuthState>()(
-  devtools(
-    persist(
-      (...b) => ({
-        ...useGlobalAuthenticationSlice(...b),
-      }),
-      {
-        name: "address-wallet",
-      },
-    ),
-  ),
+export const useGlobalAuthenticationStore = create<AuthenticationGlobalStore>()(
+  devtools(useGlobalAuthenticationSlice, { name: "AuthenticationStore" })
 );
