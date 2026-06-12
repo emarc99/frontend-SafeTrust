@@ -5,7 +5,7 @@ import {
   HotelHeader,
   SuggestionsList,
 } from '@/components/hotel';
-import { getHotelById, getSuggestedHotels } from '@/mockData/hotels';
+import { getHotelById, getSuggestedHotels } from '@/lib/mockData/hotels';
 import { useRouter } from 'next/navigation';
 import { use } from 'react';
 

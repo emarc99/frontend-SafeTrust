@@ -1,233 +1,439 @@
-'use client';
+// frontend-SafeTrust/src/components/dashboard/apartments/NewApartmentForm.tsx
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Home, MapPin, WalletCards, PercentCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
-  ApartmentFormField,
-  IconInputField,
-  IconSelectField,
-  NumberSelectField,
-} from './ApartmentFormFields';
-import { ImageUploader } from './ImageUploader';
+  Home, MapPin, DollarSign, Plus, X, ImageIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export interface NewApartmentFormData {
-  name: string;
-  location: string;
-  amountPerMonth: number;
-  promotionPercent: number | null;
-  rooms: number;
-  bathrooms: number;
-  petFriendly: boolean;
-  details: string;
-  images: File[];
-}
-
-const ROOM_OPTIONS = Array.from({ length: 10 }, (_, index) =>
-  String(index + 1)
-);
-const PROMOTION_OPTIONS = [
-  { label: 'No promotion', value: 'none' },
-  { label: '5%', value: '5' },
-  { label: '10%', value: '10' },
-  { label: '15%', value: '15' },
-  { label: '20%', value: '20' },
-  { label: '25%', value: '25' },
-  { label: '30%', value: '30' },
-  { label: '40%', value: '40' },
-  { label: '50%', value: '50' },
-];
+const BEDROOM_OPTIONS = ["1", "2", "3", "4", "5+"];
+const BATHROOM_OPTIONS = ["1", "2", "3", "4+"];
 
 export function NewApartmentForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    location: '',
-    amountPerMonth: '',
-    promotionPercent: null as number | null,
-    rooms: 1,
-    bathrooms: 1,
-    petFriendly: false,
-    details: '',
-  });
-  const [imageSlots, setImageSlots] = useState<Array<File | null>>([
-    null,
-    null,
-    null,
-    null,
-  ]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // CHANGED: no Firebase token decode, no auth store needed
+  const ownerAddress = "mock-owner-1";
 
-    const parsedAmount = Number(formData.amountPerMonth);
-    const amountPerMonth = Number.isFinite(parsedAmount) ? parsedAmount : 0;
+  // ── Form state (unchanged from dApp version) ─────────────────
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [warrantyDeposit, setWarrantyDeposit] = useState("");
+  const [street, setStreet] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [city, setCity] = useState("San José");
+  const [country, setCountry] = useState("Costa Rica");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [bedrooms, setBedrooms] = useState("2");
+  const [bathrooms, setBathrooms] = useState("1");
+  const [petFriendly, setPetFriendly] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [availableFrom, setAvailableFrom] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [availableUntil, setAvailableUntil] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([""]);
 
-    const data: NewApartmentFormData = {
-      ...formData,
-      amountPerMonth,
-      images: imageSlots.filter((image): image is File => image !== null),
-    };
+  // CHANGED: replace useMutation with local loading state
+  const [loading, setLoading] = useState(false);
 
-    console.log('TODO: submit apartment', data);
-    // TODO: wire to POST /api/apartments mutation
-    router.push('/dashboard/apartments');
+  // ── Image URL handlers (unchanged) ───────────────────────────
+  const addImageUrl = () => setImageUrls((prev) => [...prev, ""]);
+
+  const updateImageUrl = (index: number, value: string) => {
+    setImageUrls((prev) =>
+      prev.map((url, i) => (i === index ? value : url))
+    );
+  };
+
+  const removeImageUrl = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ── Submit (CHANGED: stub instead of Apollo mutation) ────────
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    if (
+      !warrantyDeposit ||
+      isNaN(Number(warrantyDeposit)) ||
+      Number(warrantyDeposit) <= 0
+    ) {
+      toast.error("Please enter a valid warranty deposit");
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulate network delay
+    await new Promise((r) => setTimeout(r, 600));
+
+    const lat = latitude ? parseFloat(latitude) : 9.9281;
+    const lng = longitude ? parseFloat(longitude) : -84.0907;
+    const filteredImageUrls = imageUrls.filter((url) => url.trim() !== "");
+
+    console.log("(skeleton mode) Would create apartment:", {
+      owner_id: ownerAddress,
+      name: name.trim(),
+      description: description.trim() || null,
+      price: parseFloat(price),
+      warranty_deposit: parseFloat(warrantyDeposit),
+      address: {
+        street: street.trim(),
+        neighborhood: neighborhood.trim(),
+        city: city.trim(),
+        country: country.trim(),
+      },
+      coordinates: `(${lat},${lng})`,
+      bedrooms,
+      bathrooms,
+      pet_friendly: petFriendly,
+      is_available: isAvailable,
+      available_from: new Date(availableFrom).toISOString(),
+      available_until: availableUntil
+        ? new Date(availableUntil).toISOString()
+        : null,
+      image_urls: filteredImageUrls.length > 0 ? filteredImageUrls : null,
+    });
+
+    toast.success("Apartment created successfully! (skeleton mode)");
+    setLoading(false);
+    router.push("/dashboard/apartments");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-gray-950 dark:text-gray-100">
-          New apartment
-        </h1>
-        <p className="text-sm text-muted-foreground dark:text-gray-400">
-          Register a new apartment listing for guests to discover.
-        </p>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-foreground">New Apartment</h1>
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard/apartments")}
+        >
+          Cancel
+        </Button>
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
-        <div className="space-y-5">
-          <ApartmentFormField label="Apartment name">
-            <IconInputField
-              icon={<Home className="h-4 w-4" aria-hidden="true" />}
-              value={formData.name}
-              onChange={(event) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  name: event.target.value,
-                }))
-              }
-              placeholder="Apartment name"
-              required
-            />
-          </ApartmentFormField>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* ── Left column ── */}
+          <div className="space-y-5">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Apartment Name *</Label>
+              <div className="relative">
+                <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
+                <Input
+                  id="name"
+                  placeholder="e.g. La Sabana Sur Studio"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
-          <ApartmentFormField label="Location">
-            <IconInputField
-              icon={<MapPin className="h-4 w-4" aria-hidden="true" />}
-              value={formData.location}
-              onChange={(event) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  location: event.target.value,
-                }))
-              }
-              placeholder="City, province or neighborhood"
-              required
-            />
-          </ApartmentFormField>
+            {/* Street */}
+            <div className="space-y-2">
+              <Label htmlFor="street">Street Address *</Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
+                <Input
+                  id="street"
+                  placeholder="e.g. Calle 42, Avenida 8"
+                  required
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
-          <ApartmentFormField label="Amount to pay">
-            <IconInputField
-              icon={<WalletCards className="h-4 w-4" aria-hidden="true" />}
-              type="number"
-              min={0}
-              value={formData.amountPerMonth}
-              onChange={(event) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  amountPerMonth: event.target.value,
-                }))
-              }
-              placeholder="4000"
-              required
-            />
-          </ApartmentFormField>
+            {/* Neighborhood + City */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="neighborhood">Neighborhood</Label>
+                <Input
+                  id="neighborhood"
+                  placeholder="e.g. Sabana Norte"
+                  value={neighborhood}
+                  onChange={(e) => setNeighborhood(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <ApartmentFormField label="Promotion percent">
-            <IconSelectField
-              icon={<PercentCircle className="h-4 w-4" aria-hidden="true" />}
-              value={formData.promotionPercent === null ? 'none' : String(formData.promotionPercent)}
-              onValueChange={(value) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  promotionPercent: value === 'none' ? null : Number(value),
-                }))
-              }
-              placeholder="Select promotion"
-              options={PROMOTION_OPTIONS}
-            />
-          </ApartmentFormField>
+            {/* Coordinates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude</Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  placeholder="9.9281"
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude</Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  placeholder="-84.0907"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
-            <NumberSelectField
-              label="Rooms"
-              value={String(formData.rooms)}
-              onValueChange={(value) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  rooms: Number(value),
-                }))
-              }
-              options={ROOM_OPTIONS}
-            />
+            {/* Price + Deposit */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="price">Monthly Price (USD) *</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
+                  <Input
+                    id="price"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="1200.00"
+                    required
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deposit">Warranty Deposit (USD) *</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
+                  <Input
+                    id="deposit"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="2400.00"
+                    required
+                    value={warrantyDeposit}
+                    onChange={(e) => setWarrantyDeposit(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <NumberSelectField
-              label="Bathrooms"
-              value={String(formData.bathrooms)}
-              onValueChange={(value) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  bathrooms: Number(value),
-                }))
-              }
-              options={ROOM_OPTIONS}
-            />
+            {/* Bedrooms + Bathrooms */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Bedrooms</Label>
+                <div className="flex flex-wrap gap-2">
+                  {BEDROOM_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setBedrooms(opt)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                        bedrooms === opt
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-background text-muted-foreground border-border hover:border-orange-400"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Bathrooms</Label>
+                <div className="flex flex-wrap gap-2">
+                  {BATHROOM_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setBathrooms(opt)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                        bathrooms === opt
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-background text-muted-foreground border-border hover:border-orange-400"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-            <div className="flex items-center gap-3 pb-2">
-              <Checkbox
-                id="pet-friendly"
-                checked={formData.petFriendly}
-                onCheckedChange={(checked) =>
-                  setFormData((currentData) => ({
-                    ...currentData,
-                    petFriendly: checked === true,
-                  }))
-                }
-                className="border-orange-400 data-[state=checked]:bg-orange-500 data-[state=checked]:text-white"
-              />
-              <Label
-                htmlFor="pet-friendly"
-                className="cursor-pointer text-sm font-semibold text-gray-900 dark:text-gray-200"
-              >
+            {/* Availability dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="availableFrom">Available From *</Label>
+                <Input
+                  id="availableFrom"
+                  type="date"
+                  required
+                  value={availableFrom}
+                  onChange={(e) => setAvailableFrom(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="availableUntil">Available Until</Label>
+                <Input
+                  id="availableUntil"
+                  type="date"
+                  value={availableUntil}
+                  onChange={(e) => setAvailableUntil(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Checkboxes */}
+            <div className="flex flex-wrap gap-6 pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <Checkbox
+                  checked={petFriendly}
+                  onCheckedChange={(v) => setPetFriendly(Boolean(v))}
+                />
                 Pet friendly
-              </Label>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <Checkbox
+                  checked={isAvailable}
+                  onCheckedChange={(v) => setIsAvailable(Boolean(v))}
+                />
+                Available now
+              </label>
+            </div>
+          </div>
+
+          {/* ── Right column ── */}
+          <div className="space-y-5">
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Apartment Details</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe the apartment — features, nearby amenities, special conditions..."
+                rows={5}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Image URLs */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4 text-orange-400" />
+                  Image URLs
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addImageUrl}
+                  className="h-7 text-xs gap-1"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add URL
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                {imageUrls.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder={`https://example.com/image-${index + 1}.jpg`}
+                      value={url}
+                      onChange={(e) => updateImageUrl(index, e.target.value)}
+                      className="flex-1 text-sm"
+                    />
+                    {imageUrls.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeImageUrl(index)}
+                        className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Image preview grid */}
+              {imageUrls.some((url) => url.trim() !== "") && (
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {imageUrls
+                    .filter((url) => url.trim() !== "")
+                    .map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted border border-border"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="space-y-5">
-          <ApartmentFormField label="Apartment details">
-            <Textarea
-              value={formData.details}
-              onChange={(event) =>
-                setFormData((currentData) => ({
-                  ...currentData,
-                  details: event.target.value,
-                }))
-              }
-              placeholder="Describe the apartment, amenities, neighborhood and what makes it special."
-              className="min-h-[150px] resize-y bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-              required
-            />
-          </ApartmentFormField>
-
-          <ApartmentFormField label="Images">
-            <ImageUploader files={imageSlots} onChange={setImageSlots} />
-          </ApartmentFormField>
-
+        {/* Submit */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-border">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/dashboard/apartments")}
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
-            className="h-11 w-full bg-orange-500 text-base font-semibold text-white shadow-sm hover:bg-orange-600"
+            disabled={loading}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-8"
           >
-            Register
+            {loading ? "Creating..." : "Create Apartment"}
           </Button>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

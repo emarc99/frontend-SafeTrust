@@ -4,7 +4,7 @@ import type { HotelListing } from "@/@types/hotel";
 import ApartmentGrid from "@/components/hotel/ApartmentGrid";
 import BedroomTabs from "@/components/hotel/BedroomTabs";
 import FilterSidebar from "@/components/hotel/FilterSidebar";
-import { STUB_HOTELS } from "@/mockData/hotels";
+import { STUB_HOTELS } from "@/lib/mockData/hotels";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BsSortDownAlt } from "react-icons/bs";

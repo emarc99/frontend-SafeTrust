@@ -4,10 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
 import { useGlobalAuthenticationStore } from "@/core/store/data";
@@ -22,18 +19,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Illustration from "@/components/auth/ui/Illustration";
+import Cookies from "js-cookie";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { toast } from "sonner";
+
+const COUNTRY_CODES = [
+  { code: "+506", country: "Costa Rica", flag: "🇨🇷" },
+  { code: "+1",   country: "United States", flag: "🇺🇸" },
+  { code: "+52",  country: "Mexico", flag: "🇲🇽" },
+  { code: "+34",  country: "Spain", flag: "🇪🇸" },
+  { code: "+44",  country: "United Kingdom", flag: "🇬🇧" },
+  { code: "+49",  country: "Germany", flag: "🇩🇪" },
+  { code: "+55",  country: "Brazil", flag: "🇧🇷" },
+  { code: "+57",  country: "Colombia", flag: "🇨🇴" },
+  { code: "+51",  country: "Peru", flag: "🇵🇪" },
+  { code: "+54",  country: "Argentina", flag: "🇦🇷" },
+];
 
 const ERROR_MESSAGES: Record<string, string> = {
-  "auth/email-already-in-use":
-    "An account with this email already exists",
+  "auth/email-already-in-use": "An account with this email already exists",
   "auth/weak-password": "Password must be at least 6 characters",
   "auth/invalid-email": "Invalid email address",
 };
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phoneCountryCode, setPhoneCountryCode] = useState("+506");
@@ -63,25 +75,37 @@ export default function RegisterPage() {
         password,
       );
 
-      await updateProfile(credential.user, { displayName: fullName });
+      await updateProfile(credential.user, {
+        displayName: `${firstName} ${lastName}`.trim(),
+      });
 
       const token = await credential.user.getIdToken();
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      const syncRes = await fetch(`${backendUrl}/api/auth/sync-user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const syncRes = await fetch(
+        `${backendUrl}/api/auth/sync-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: phone,
+            country_code: phoneCountryCode,
+            location,
+          }),
         },
-        body: JSON.stringify({
-          phone_number: phone,
-          country_code: phoneCountryCode,
-          location,
-        }),
-        signal: controller.signal,
+      );
+
+      Cookies.set("firebase-token", token, {
+        expires: 7,
+        secure: true,
+        sameSite: "strict",
       });
 
       clearTimeout(timeoutId);
@@ -91,16 +115,25 @@ export default function RegisterPage() {
       }
 
       useGlobalAuthenticationStore.getState().setToken(token);
-      router.push("/dashboard");
+      toast.success("Account created successfully!", {
+        description: "Please sign in with your new credentials.",
+        duration: 4000,
+      });
+      router.push("/login");
     } catch (err: unknown) {
       if (err instanceof FirebaseError) {
-        const fErr = err as any;
+        toast.error(
+          ERROR_MESSAGES[err.code] ?? "An unexpected error occurred. Please try again.",
+          { duration: 4000 }
+        );
         setError(
-          ERROR_MESSAGES[fErr.code] ?? "Registration failed — please try again",
+          ERROR_MESSAGES[err.code] ?? "Registration failed — please try again",
         );
       } else if (err instanceof Error && err.name === "AbortError") {
+        toast.error("Registration timed out. Please try again.", { duration: 4000 });
         setError("Registration timed out — please try again");
       } else {
+        toast.error("An unexpected error occurred. Please try again.", { duration: 4000 });
         setError("Registration failed — please try again");
       }
     } finally {
@@ -108,88 +141,85 @@ export default function RegisterPage() {
     }
   };
 
-   return (
-     <div className="relative flex min-h-screen bg-white dark:bg-gray-900">
-       <div className="absolute top-4 right-4 z-20">
-         <ThemeToggle />
-       </div>
-       <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2 dark:bg-gray-800">
+  return (
+    <div className="flex min-h-screen">
+      <div className="flex w-full flex-col items-center justify-center px-4 md:w-1/2">
         <div className="w-full max-w-sm space-y-6">
-          <div className="flex items-center space-x-2">
-            <Image src="/img/logo-new.png" alt="SafeTrust" width={40} height={40} />
-            <h1 className="text-2xl font-bold">SafeTrust</h1>
+          <div className="flex items-center justify-between w-full mb-2">
+            <div className="flex items-center space-x-2">
+              <Image src="/img/logo.png" alt="SafeTrust" width={32} height={32} />
+              <h1 className="text-2xl font-bold">SafeTrust</h1>
+            </div>
+            <ThemeToggle />
           </div>
 
-          <form className="space-y-4" onSubmit={handleRegister}>
-            <div className="space-y-2">
-              <Label className="dark:text-gray-200" htmlFor="name">
-                Full Name
-              </Label>
-               <Input
-                 id="name"
-                 placeholder="Enter your full name"
-                 required
-                 value={fullName}
-                 onChange={(e) => {
-                   setFullName(e.target.value);
-                   clearError();
-                 }}
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
-               />
-            </div>
+          <form className="space-y-5 overflow-visible" onSubmit={handleRegister}>
 
-            <div className="space-y-2">
-              <Label className="dark:text-gray-200" htmlFor="phone">
-                Phone Number
-              </Label>
-              <div className="flex gap-2">
-                <Select
-                  value={phoneCountryCode}
-                  onValueChange={(v) => {
-                    setPhoneCountryCode(v);
-                    clearError();
-                  }}
-                >
-                  <SelectTrigger className="w-[100px] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="+506">+506</SelectItem>
-                    <SelectItem value="+1">+1</SelectItem>
-                    <SelectItem value="+52">+52</SelectItem>
-                    <SelectItem value="+34">+34</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <Input
-                   id="phone"
-                   type="tel"
-                   placeholder="Enter your phone number"
-                   required
-                   value={phone}
-                   onChange={(e) => {
-                     setPhone(e.target.value);
-                     clearError();
-                   }}
-                   className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
-                 />
+            {/* First Name + Last Name */}
+            <div className="flex gap-2">
+              <div className="space-y-2 flex-1">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  placeholder="First name"
+                  required
+                  value={firstName}
+                  onChange={(e) => { setFirstName(e.target.value); clearError(); }}
+                />
+              </div>
+              <div className="space-y-2 flex-1">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Last name"
+                  required
+                  value={lastName}
+                  onChange={(e) => { setLastName(e.target.value); clearError(); }}
+                />
               </div>
             </div>
 
+            {/* Phone */}
             <div className="space-y-2">
-              <Label className="dark:text-gray-200" htmlFor="location">
-                Location
-              </Label>
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="flex gap-2">
+                <Select
+                  value={phoneCountryCode}
+                  onValueChange={(v) => { setPhoneCountryCode(v); clearError(); }}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" sideOffset={4}>
+                    {COUNTRY_CODES.map(({ code, country, flag }) => (
+                      <SelectItem key={code} value={code}>
+                        {flag} {code} — {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  required
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); clearError(); }}
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
               <Select
-                value={location || undefined}
-                onValueChange={(v) => {
-                  setLocation(v);
-                  clearError();
-                }}
+                value={location}
+                onValueChange={(v) => { setLocation(v); clearError(); }}
               >
-                <SelectTrigger id="location" className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <SelectTrigger>
                   <SelectValue placeholder="Select your location" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" sideOffset={4}>
                   <SelectItem value="cr">Costa Rica</SelectItem>
                   <SelectItem value="us">United States</SelectItem>
                   <SelectItem value="mx">Mexico</SelectItem>
@@ -198,39 +228,30 @@ export default function RegisterPage() {
               </Select>
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
-              <Label className="dark:text-gray-200" htmlFor="email">
-                Email
-              </Label>
-               <Input
-                 id="email"
-                 type="email"
-                 placeholder="Enter your email"
-                 required
-                 value={email}
-                 onChange={(e) => {
-                   setEmail(e.target.value);
-                   clearError();
-                 }}
-                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
-               />
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); clearError(); }}
+              />
             </div>
 
+            {/* Password */}
             <div className="space-y-2">
-              <Label className="dark:text-gray-200" htmlFor="password">
-                Password
-              </Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="Enter your password"
                 required
+                minLength={6}
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearError();
-                }}
-                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+                onChange={(e) => { setPassword(e.target.value); clearError(); }}
               />
             </div>
 
@@ -239,32 +260,24 @@ export default function RegisterPage() {
               className="w-full bg-[#2857B8] hover:bg-[#2857B8]/90"
               disabled={isLoading}
             >
-              Sign Up
+              {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
 
-            {error ? (
-              <p className="text-center text-sm text-red-600 dark:text-red-400">
-                {error}
-              </p>
-            ) : null}
+            {error && (
+              <p className="text-center text-sm text-red-600">{error}</p>
+            )}
           </form>
 
           <div className="text-center text-sm">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-[#2857B8] hover:underline dark:text-blue-400"
-            >
+            <Link href="/login" className="text-[#2857B8] hover:underline">
               Sign in
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="hidden md:flex w-1/2 bg-gray-50 dark:bg-gray-900 items-center justify-center transition-colors duration-300">
-        <Illustration className="dark:opacity-20 dark:brightness-75" />
-      </div>
-
+      <Illustration />
     </div>
   );
 }
