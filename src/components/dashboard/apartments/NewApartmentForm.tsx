@@ -1,439 +1,238 @@
-// frontend-SafeTrust/src/components/dashboard/apartments/NewApartmentForm.tsx
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import {
-  Home, MapPin, DollarSign, Plus, X, ImageIcon,
-} from "lucide-react";
+import { Clock, DollarSign, Home, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const BEDROOM_OPTIONS = ["1", "2", "3", "4", "5+"];
-const BATHROOM_OPTIONS = ["1", "2", "3", "4+"];
+type LeftField = {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  value: string;
+  set: (value: string) => void;
+  type: string;
+};
+
+const ROOM_OPTIONS = ["1", "2", "3", "4", "5"];
+const BATH_OPTIONS = ["1", "2", "3", "4"];
+const PROMOTION_OPTIONS = ["0", "5", "10", "15", "20", "25"];
 
 export function NewApartmentForm() {
   const router = useRouter();
 
-  // CHANGED: no Firebase token decode, no auth store needed
-  const ownerAddress = "mock-owner-1";
-
-  // ── Form state (unchanged from dApp version) ─────────────────
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [warrantyDeposit, setWarrantyDeposit] = useState("");
-  const [street, setStreet] = useState("");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [city, setCity] = useState("San José");
-  const [country, setCountry] = useState("Costa Rica");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [bedrooms, setBedrooms] = useState("2");
-  const [bathrooms, setBathrooms] = useState("1");
+  const [location, setLocation] = useState("");
+  const [amount, setAmount] = useState("");
+  const [promotion, setPromotion] = useState("0");
+  const [details, setDetails] = useState("");
+  const [rooms, setRooms] = useState("1");
+  const [baths, setBaths] = useState("1");
   const [petFriendly, setPetFriendly] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [availableFrom, setAvailableFrom] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [availableUntil, setAvailableUntil] = useState("");
-  const [imageUrls, setImageUrls] = useState<string[]>([""]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // CHANGED: replace useMutation with local loading state
-  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
 
-  // ── Image URL handlers (unchanged) ───────────────────────────
-  const addImageUrl = () => setImageUrls((prev) => [...prev, ""]);
-
-  const updateImageUrl = (index: number, value: string) => {
-    setImageUrls((prev) =>
-      prev.map((url, i) => (i === index ? value : url))
-    );
-  };
-
-  const removeImageUrl = (index: number) => {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // ── Submit (CHANGED: stub instead of Apollo mutation) ────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-      toast.error("Please enter a valid price");
-      return;
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      router.push("/dashboard/apartments");
+    } finally {
+      setIsLoading(false);
     }
-
-    if (
-      !warrantyDeposit ||
-      isNaN(Number(warrantyDeposit)) ||
-      Number(warrantyDeposit) <= 0
-    ) {
-      toast.error("Please enter a valid warranty deposit");
-      return;
-    }
-
-    setLoading(true);
-
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 600));
-
-    const lat = latitude ? parseFloat(latitude) : 9.9281;
-    const lng = longitude ? parseFloat(longitude) : -84.0907;
-    const filteredImageUrls = imageUrls.filter((url) => url.trim() !== "");
-
-    console.log("(skeleton mode) Would create apartment:", {
-      owner_id: ownerAddress,
-      name: name.trim(),
-      description: description.trim() || null,
-      price: parseFloat(price),
-      warranty_deposit: parseFloat(warrantyDeposit),
-      address: {
-        street: street.trim(),
-        neighborhood: neighborhood.trim(),
-        city: city.trim(),
-        country: country.trim(),
-      },
-      coordinates: `(${lat},${lng})`,
-      bedrooms,
-      bathrooms,
-      pet_friendly: petFriendly,
-      is_available: isAvailable,
-      available_from: new Date(availableFrom).toISOString(),
-      available_until: availableUntil
-        ? new Date(availableUntil).toISOString()
-        : null,
-      image_urls: filteredImageUrls.length > 0 ? filteredImageUrls : null,
-    });
-
-    toast.success("Apartment created successfully! (skeleton mode)");
-    setLoading(false);
-    router.push("/dashboard/apartments");
   };
+
+  const leftFields: LeftField[] = [
+    {
+      id: "apt-name",
+      label: "Apartment name",
+      icon: Home,
+      value: name,
+      set: setName,
+      type: "text",
+    },
+    {
+      id: "apt-location",
+      label: "Location",
+      icon: MapPin,
+      value: location,
+      set: setLocation,
+      type: "text",
+    },
+    {
+      id: "apt-amount",
+      label: "Amount to pay",
+      icon: DollarSign,
+      value: amount,
+      set: setAmount,
+      type: "number",
+    },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground">New Apartment</h1>
-        <Button
-          variant="outline"
-          onClick={() => router.push("/dashboard/apartments")}
-        >
-          Cancel
-        </Button>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <h1 className="mb-8 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        New apartment
+      </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* ── Left column ── */}
-          <div className="space-y-5">
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Apartment Name *</Label>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="space-y-5">
+          {leftFields.map(({ id, label, icon: Icon, value, set, type }) => (
+            <div key={id} className="space-y-1.5">
+              <Label htmlFor={id}>{label}</Label>
               <div className="relative">
-                <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
-                <Input
-                  id="name"
-                  placeholder="e.g. La Sabana Sur Studio"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
-            {/* Street */}
-            <div className="space-y-2">
-              <Label htmlFor="street">Street Address *</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
-                <Input
-                  id="street"
-                  placeholder="e.g. Calle 42, Avenida 8"
-                  required
-                  value={street}
-                  onChange={(e) => setStreet(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-
-            {/* Neighborhood + City */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Neighborhood</Label>
-                <Input
-                  id="neighborhood"
-                  placeholder="e.g. Sabana Norte"
-                  value={neighborhood}
-                  onChange={(e) => setNeighborhood(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Coordinates */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="latitude">Latitude</Label>
-                <Input
-                  id="latitude"
-                  type="number"
-                  step="any"
-                  placeholder="9.9281"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="longitude">Longitude</Label>
-                <Input
-                  id="longitude"
-                  type="number"
-                  step="any"
-                  placeholder="-84.0907"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Price + Deposit */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="price">Monthly Price (USD) *</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
-                  <Input
-                    id="price"
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    placeholder="1200.00"
-                    required
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="pl-9"
-                  />
+                <div className="absolute left-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md bg-orange-100">
+                  <Icon className="h-4 w-4 text-orange-500" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="deposit">Warranty Deposit (USD) *</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-400" />
-                  <Input
-                    id="deposit"
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    placeholder="2400.00"
-                    required
-                    value={warrantyDeposit}
-                    onChange={(e) => setWarrantyDeposit(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
+                <Input
+                  id={id}
+                  type={type}
+                  className="pl-11"
+                  value={value}
+                  onChange={(event) => set(event.target.value)}
+                  required
+                />
               </div>
             </div>
+          ))}
 
-            {/* Bedrooms + Bathrooms */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Bedrooms</Label>
-                <div className="flex flex-wrap gap-2">
-                  {BEDROOM_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setBedrooms(opt)}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                        bedrooms === opt
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "bg-background text-muted-foreground border-border hover:border-orange-400"
-                      }`}
-                    >
-                      {opt}
-                    </button>
+          <div className="space-y-1.5">
+            <Label htmlFor="apt-promotion">Promotion percent</Label>
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-orange-100">
+                <Clock className="h-4 w-4 text-orange-500" />
+              </div>
+              <Select value={promotion} onValueChange={setPromotion}>
+                <SelectTrigger id="apt-promotion" className="w-28">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROMOTION_OPTIONS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}%
+                    </SelectItem>
                   ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Bathrooms</Label>
-                <div className="flex flex-wrap gap-2">
-                  {BATHROOM_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setBathrooms(opt)}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                        bathrooms === opt
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "bg-background text-muted-foreground border-border hover:border-orange-400"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Availability dates */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="availableFrom">Available From *</Label>
-                <Input
-                  id="availableFrom"
-                  type="date"
-                  required
-                  value={availableFrom}
-                  onChange={(e) => setAvailableFrom(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="availableUntil">Available Until</Label>
-                <Input
-                  id="availableUntil"
-                  type="date"
-                  value={availableUntil}
-                  onChange={(e) => setAvailableUntil(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Checkboxes */}
-            <div className="flex flex-wrap gap-6 pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
-                <Checkbox
-                  checked={petFriendly}
-                  onCheckedChange={(v) => setPetFriendly(Boolean(v))}
-                />
-                Pet friendly
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-sm">
-                <Checkbox
-                  checked={isAvailable}
-                  onCheckedChange={(v) => setIsAvailable(Boolean(v))}
-                />
-                Available now
-              </label>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* ── Right column ── */}
-          <div className="space-y-5">
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Apartment Details</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe the apartment — features, nearby amenities, special conditions..."
-                rows={5}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="resize-none"
-              />
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="apt-rooms">Rooms</Label>
+              <Select value={rooms} onValueChange={setRooms}>
+                <SelectTrigger id="apt-rooms" className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROOM_OPTIONS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Image URLs */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-orange-400" />
-                  Image URLs
-                </Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addImageUrl}
-                  className="h-7 text-xs gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add URL
-                </Button>
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="apt-baths">Bathrooms</Label>
+              <Select value={baths} onValueChange={setBaths}>
+                <SelectTrigger id="apt-baths" className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BATH_OPTIONS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div className="space-y-2">
-                {imageUrls.map((url, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      placeholder={`https://example.com/image-${index + 1}.jpg`}
-                      value={url}
-                      onChange={(e) => updateImageUrl(index, e.target.value)}
-                      className="flex-1 text-sm"
+            <div className="flex items-center gap-2 pb-0.5">
+              <Checkbox
+                id="apt-pet"
+                checked={petFriendly}
+                onCheckedChange={(checked) => setPetFriendly(Boolean(checked))}
+                className="border-orange-400 data-[state=checked]:border-orange-500 data-[state=checked]:bg-orange-500"
+              />
+              <Label htmlFor="apt-pet">Pet friendly</Label>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="apt-details">Apartment details</Label>
+            <Textarea
+              id="apt-details"
+              rows={6}
+              className="resize-none focus-visible:ring-orange-400"
+              value={details}
+              onChange={(event) => setDetails(event.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Images</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <label
+                htmlFor="apt-img-main"
+                className="col-span-2 flex h-44 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors hover:border-orange-400"
+              >
+                <input
+                  id="apt-img-main"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                />
+                <Plus className="h-6 w-6 text-gray-400" />
+              </label>
+
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map((slot) => (
+                  <label
+                    key={slot}
+                    htmlFor={`apt-img-${slot}`}
+                    className="flex flex-1 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors hover:border-orange-400"
+                  >
+                    <input
+                      id={`apt-img-${slot}`}
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
                     />
-                    {imageUrls.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeImageUrl(index)}
-                        className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
+                    <Plus className="h-4 w-4 text-gray-400" />
+                  </label>
                 ))}
               </div>
-
-              {/* Image preview grid */}
-              {imageUrls.some((url) => url.trim() !== "") && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {imageUrls
-                    .filter((url) => url.trim() !== "")
-                    .map((url, index) => (
-                      <div
-                        key={index}
-                        className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted border border-border"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={url}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
-                        />
-                      </div>
-                    ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Submit */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/dashboard/apartments")}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8"
-          >
-            {loading ? "Creating..." : "Create Apartment"}
-          </Button>
-        </div>
-      </form>
-    </div>
+      <div className="mt-8">
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-orange-500 py-3 text-base font-semibold text-white hover:bg-orange-600"
+        >
+          {isLoading ? "Registering..." : "Regist"}
+        </Button>
+      </div>
+    </form>
   );
 }
