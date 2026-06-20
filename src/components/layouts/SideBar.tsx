@@ -63,14 +63,14 @@ export function SideBar({
           </span>
         </Link>
         <Link
-          href="/notifications"
+          href="/dashboard/notifications"
           onClick={onClose}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full relative group dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
         >
           <Bell className="w-6 h-6 shrink-0 dark:text-gray-400" />
           <span className="md:hidden lg:block">Notifications</span>
           {notificationCount > 0 && (
-            <div className="absolute right-2 bg-blue-500 text-white rounded-full min-w-[18px] h-4.5 flex items-center justify-center text-[10px] font-bold px-1 dark:bg-blue-600">
+            <div className="ml-auto shrink-0 bg-blue-500 text-white rounded-full min-w-[18px] h-4.5 flex items-center justify-center text-[10px] font-bold px-1 dark:bg-blue-600">
               {notificationCount}
             </div>
           )}
@@ -80,7 +80,7 @@ export function SideBar({
           </span>
         </Link>
         <Link
-          href="/favorites"
+          href="/dashboard/favorites"
           onClick={onClose}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
         >
