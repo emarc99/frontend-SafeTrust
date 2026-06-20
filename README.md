@@ -1,4 +1,3 @@
-
 ---
 
 # 🌟 SafeTrust 🌟
@@ -47,6 +46,7 @@
 - A Stellar blockchain wallet — **Freighter** is recommended 🔐
 - Trustless Work API access ([docs here](https://docs.trustlesswork.com/trustless-work)) 📖
 - A Firebase project with **Email/Password** authentication enabled ([Firebase Console](https://console.firebase.google.com)) 🔥
+- `backend-SafeTrust` running locally (Hasura + Postgres via Docker Compose) for GraphQL and auth-sync to work 🐳
 
 ---
 
@@ -72,85 +72,87 @@ npm install
 cp .env.example .env.local
 ```
 
-Then open `.env.local` and fill in the values — see the **Environment Variables** section below for exact instructions.
+Then open `.env.local` and fill in each value — follow the **Environment Variables** section below step by step. Do not commit `.env.local`; it is already covered by `.gitignore`.
 
 **4️⃣ Start the development server**
 
 ```bash
-npm run dev
+npm run dev -- --port 3001
 ```
+
+> `frontend-SafeTrust` runs on **port 3001** by convention, since `landing-SafeTrust` already occupies port 3000. Running both repos at once on the same port will cause one of them to silently serve the wrong app. See the [Port Conventions](#-port-conventions) section below.
 
 ---
 
 ### **Environment Variables**
 
-All environment variables live in `.env.local` (never committed to git). Use `.env.example` as the template.
+Every environment variable lives in `.env.local` (never committed to git). Use `.env.example` as the template — copy it first, then fill in each block below one at a time.
 
-#### 🔥 Firebase Client SDK
+#### 🔥 1. Firebase Client SDK
 
-These come from the **Firebase Console**. Follow these steps:
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Select or create your project (SafeTrust uses project ID `safetrust-890d0`)
-3. Click the **gear icon** → **Project Settings**
-4. Scroll to **Your Apps** → select your Web app (or click **Add app** → Web if none exists)
-5. Under **SDK setup and configuration**, select **Config**
-6. Copy each value into your `.env.local`:
+These six values come from **Firebase Console → Project Settings → Your apps → Web app → SDK setup and configuration → Config**, and are required for Login, Register, and session auth to work:
 
 ```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...          # apiKey
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com  # authDomain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id               # projectId
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456:web:abc123                # appId
+NEXT_PUBLIC_FIREBASE_API_KEY=<your apiKey>
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<your-project-id>.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=<your-project-id>
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=<your-project-id>.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<your messagingSenderId>
+NEXT_PUBLIC_FIREBASE_APP_ID=<your appId>
 ```
 
-> ⚠️ These are **public browser-safe keys** — they are prefixed with `NEXT_PUBLIC_` intentionally. They are not the Firebase Admin SDK private key (which lives in `backend-SafeTrust` only and must never be exposed to the browser).
+> ℹ️ These are public, browser-safe values — Firebase ships them to the client by design, and the `NEXT_PUBLIC_` prefix is what makes Next.js expose them to the bundle. The real security boundary is **Firebase Security Rules**, not secrecy of these values. They are **not** the Firebase Admin SDK private key, which belongs only in `backend-SafeTrust` and must never appear here.
 
-**Enable Email/Password auth** (required for Register and Login to work):
+Make sure **Email/Password** sign-in is enabled in **Authentication → Sign-in method** for Register and Login to work. 📚 [Firebase Auth docs](https://firebase.google.com/docs/auth)
 
-1. In the Firebase Console → **Authentication** → **Sign-in method**
-2. Click **Email/Password** → toggle **Enable** → Save
+---
 
-#### 🌐 TrustlessWork API
+#### 🌐 2. TrustlessWork API
 
 ```bash
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
-NEXT_PUBLIC_API_KEY=your_trustlesswork_api_key        # obtain from TrustlessWork dashboard
+NEXT_PUBLIC_API_KEY=<your_trustlesswork_api_key>
 NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
-NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet                 # use 'testnet' for local development
+NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
 
-Obtain your TrustlessWork API key from [docs.trustlesswork.com](https://docs.trustlesswork.com/trustless-work).
+- Obtain `NEXT_PUBLIC_API_KEY` from your [TrustlessWork dashboard](https://docs.trustlesswork.com/trustless-work)
+- Always use `testnet` for `NEXT_PUBLIC_TRUSTLESS_NETWORK` in local development — never point local dev at `mainnet`
 
-#### 🗄️ Hasura GraphQL
+---
+
+#### 🗄️ 3. Hasura GraphQL
 
 ```bash
 NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
 ```
 
-This points to the Hasura instance running via Docker Compose in `backend-SafeTrust`. Make sure `docker compose up -d` is running before starting the frontend.
-
-> 🔒 `HASURA_GRAPHQL_ADMIN_SECRET` is intentionally absent from the frontend environment. The frontend authenticates via Firebase JWT — never via the admin secret. See `src/config/apollo.ts` for details.
-
-#### 🔗 Backend URL
+This points to the Hasura instance started by Docker Compose in `backend-SafeTrust`. Before running `npm run dev` here, make sure that repo is running:
 
 ```bash
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
+cd ../backend-SafeTrust
+docker compose up -d
 ```
 
-Points to the webhook/auth service from `backend-SafeTrust` running locally. Required for the Register flow to sync the new user to PostgreSQL.
+> 🔒 **`HASURA_GRAPHQL_ADMIN_SECRET` must never be set in this repository.** The frontend authenticates against Hasura via a **Firebase JWT**, not the admin secret. The admin secret grants unrestricted read/write access to the entire database and belongs **only** in `backend-SafeTrust`'s server-side environment — never in a `NEXT_PUBLIC_*` variable, never in `.env.local` here, and never committed anywhere. See `src/config/apollo.ts` for how the JWT-based auth header is attached to GraphQL requests.
+>
+> If you ever see `NEXT_PUBLIC_HASURA_ADMIN_SECRET` or similar in a `.env` file in this repo, treat it as a security incident — remove it and rotate the secret in `backend-SafeTrust` immediately.
+
+---
 
 ---
 
 ### **Complete `.env.local` example**
 
 ```bash
-# Firebase Client SDK
+# Firebase Client SDK (public, browser-safe — see section 1 above)
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456:web:abc123
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 
 # TrustlessWork API
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
@@ -159,12 +161,24 @@ NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 
-# Hasura GraphQL (backend-SafeTrust must be running)
+# Hasura GraphQL (backend-SafeTrust must be running — NO admin secret here, ever)
 NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
-
-# Backend auth/webhook service (backend-SafeTrust/webhook must be running)
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
 ```
+
+---
+
+### **🔢 Port Conventions**
+
+SafeTrust spans three repos that may run simultaneously on the same machine. Use these ports to avoid collisions:
+
+| Repo | Port | Start command |
+|---|---|---|
+| `landing-SafeTrust` | `3000` | `npm run dev` |
+| `frontend-SafeTrust` (this repo) | `3001` | `npm run dev -- --port 3001` |
+| `backend-SafeTrust` (webhook service) | `4000` | `docker compose up -d` |
+| Hasura GraphQL Engine | `8080` | started via `backend-SafeTrust` Docker Compose |
+
+If you start this repo without `--port 3001` while `landing-SafeTrust` is already running on `3000`, your browser may silently load the landing page instead of the dApp at `localhost:3000` — and any runtime errors you see will actually belong to the landing repo, not this one.
 
 ---
 
