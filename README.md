@@ -1,4 +1,4 @@
-
+---
 
 # 🌟 SafeTrust 🌟
 
@@ -47,6 +47,8 @@
 - Trustless Work API access ([docs here](https://docs.trustlesswork.com/trustless-work)) 📖
 - A Firebase project with **Email/Password** authentication enabled ([Firebase Console](https://console.firebase.google.com)) 🔥
 
+> 🧩 **This repo runs standalone.** `frontend-SafeTrust` does **not** require `backend-SafeTrust` to be running locally. It connects directly to a live Hasura GraphQL endpoint and to Firebase — both are remote services reachable over the network, not local processes you need to start. See [Architecture: Standalone vs. Monorepo](#-architecture-standalone-vs-monorepo) below for the full explanation.
+
 ---
 
 ### **Installation**
@@ -76,10 +78,20 @@ Then open `.env.local` and fill in each value — follow the **Environment Varia
 **4️⃣ Start the development server**
 
 ```bash
-npm run dev -- --port 3001
+npm run dev
 ```
 
-> `frontend-SafeTrust` runs on **port 3001** by convention, since `landing-SafeTrust` already occupies port 3000. Running both repos at once on the same port will cause one of them to silently serve the wrong app. See the [Port Conventions](#-port-conventions) section below.
+```
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.x.x:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 4s
+```
+
+This repo runs on **port 3000 by default**. You only need to override the port with `npm run dev -- --port 3001` if you are *also* running `landing-SafeTrust` locally at the same time — see [Port Conventions](#-port-conventions) below.
 
 ---
 
@@ -124,21 +136,14 @@ NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 #### 🗄️ 3. Hasura GraphQL
 
 ```bash
-NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
+NEXT_PUBLIC_HASURA_GRAPHQL_URL=<your Hasura GraphQL endpoint>/v1/graphql
 ```
 
-This points to the Hasura instance started by Docker Compose in `backend-SafeTrust`. Before running `npm run dev` here, make sure that repo is running:
-
-```bash
-cd ../backend-SafeTrust
-docker compose up -d
-```
+This points to a **Hasura GraphQL endpoint** — typically the shared SafeTrust Hasura instance, reachable over the network. You do **not** need to clone, run, or Dockerize `backend-SafeTrust` to develop on this repo; just point this variable at a working Hasura URL and the frontend talks to it directly.
 
 > 🔒 **`HASURA_GRAPHQL_ADMIN_SECRET` must never be set in this repository.** The frontend authenticates against Hasura via a **Firebase JWT**, not the admin secret. The admin secret grants unrestricted read/write access to the entire database and belongs **only** in `backend-SafeTrust`'s server-side environment — never in a `NEXT_PUBLIC_*` variable, never in `.env.local` here, and never committed anywhere. See `src/config/apollo.ts` for how the JWT-based auth header is attached to GraphQL requests.
 >
 > If you ever see `NEXT_PUBLIC_HASURA_ADMIN_SECRET` or similar in a `.env` file in this repo, treat it as a security incident — remove it and rotate the secret in `backend-SafeTrust` immediately.
-
----
 
 ---
 
@@ -160,24 +165,44 @@ NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 
-# Hasura GraphQL (backend-SafeTrust must be running — NO admin secret here, ever)
-NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
+# Hasura GraphQL (a reachable endpoint — backend-SafeTrust does NOT need to run locally; NO admin secret here, ever)
+NEXT_PUBLIC_HASURA_GRAPHQL_URL=https://your-hasura-instance.example.com/v1/graphql
 ```
+
+---
+
+### **🧩 Architecture: Standalone vs. Monorepo**
+
+SafeTrust ships as three separate repositories, but they can be run in two different ways depending on what you're working on:
+
+| Setup | What runs | When to use it |
+|---|---|---|
+| **`frontend-SafeTrust` standalone** (this repo) | Only `npm run dev` here. Connects to a remote/shared Hasura GraphQL endpoint and Firebase. No local backend, no Docker. | UI work, component development, dashboard features — most contributor tasks |
+| **`dApp-SafeTrust` monorepo** | Both frontend **and** backend (Hasura, Postgres, webhook service) run together via the monorepo's own tooling | Full-stack work that touches schema, mutations, or webhook behavior |
+| **`backend-SafeTrust` standalone** | Only the backend (Hasura + Postgres + webhook via Docker Compose), run independently | Backend-only contributors who don't need the UI |
+
+**For this repo (`frontend-SafeTrust`), you only need:**
+
+1. The six Firebase env vars (section 1 above)
+2. The TrustlessWork API vars (section 2 above)
+3. A working `NEXT_PUBLIC_HASURA_GRAPHQL_URL` pointing at a reachable Hasura instance (section 3 above)
+4. `npm run dev`
+
+You do **not** need to clone or run `backend-SafeTrust` to work on this repo. If you want a fully local, isolated backend instead of the shared instance, you can still clone `backend-SafeTrust` separately and point `NEXT_PUBLIC_HASURA_GRAPHQL_URL` at `http://localhost:8080/v1/graphql` — but that's optional, not a requirement to get this repo running.
 
 ---
 
 ### **🔢 Port Conventions**
 
-SafeTrust spans three repos that may run simultaneously on the same machine. Use these ports to avoid collisions:
+This only matters if you're running **multiple SafeTrust repos at the same time** on the same machine (for example, `frontend-SafeTrust` alongside `landing-SafeTrust`). If you're only running this repo, `npm run dev` on its default port (`3000`) is all you need.
 
 | Repo | Port | Start command |
 |---|---|---|
 | `landing-SafeTrust` | `3000` | `npm run dev` |
-| `frontend-SafeTrust` (this repo) | `3001` | `npm run dev -- --port 3001` |
-| `backend-SafeTrust` (webhook service) | `4000` | `docker compose up -d` |
-| Hasura GraphQL Engine | `8080` | started via `backend-SafeTrust` Docker Compose |
+| `frontend-SafeTrust` (this repo) | `3000` (default) — use `3001` only if `landing-SafeTrust` is also running | `npm run dev` or `npm run dev -- --port 3001` |
+| `backend-SafeTrust` (optional, local backend) | `4000` (webhook), `8080` (Hasura) | `docker compose up -d` |
 
-If you start this repo without `--port 3001` while `landing-SafeTrust` is already running on `3000`, your browser may silently load the landing page instead of the dApp at `localhost:3000` — and any runtime errors you see will actually belong to the landing repo, not this one.
+If you start this repo on the default port while `landing-SafeTrust` is already running on `3000`, your browser may silently load the landing page instead of the dApp — and any runtime errors you see will actually belong to the landing repo, not this one.
 
 ---
 
@@ -189,7 +214,7 @@ If you only need to inspect the dashboard UI without live Firebase auth, bypass 
 localStorage.setItem("walletAddress", "GBUILD_TEST_ADDRESS_HERE")
 ```
 
-Then navigate directly to `http://localhost:3001/dashboard`.
+Then navigate directly to `http://localhost:3000/dashboard` (or `:3001` if you started this repo on the alternate port).
 
 ---
 
