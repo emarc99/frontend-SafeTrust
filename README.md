@@ -115,7 +115,7 @@ Make sure **Email/Password** sign-in is enabled in **Authentication → Sign-in 
 
 ---
 
-#### 🌐 2. TrustlessWork API
+#### 🌐 2. TrustlessWork API (Optional, don't need it yet)
 
 ```bash
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
