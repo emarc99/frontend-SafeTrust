@@ -46,7 +46,6 @@
 - A Stellar blockchain wallet — **Freighter** is recommended 🔐
 - Trustless Work API access ([docs here](https://docs.trustlesswork.com/trustless-work)) 📖
 - A Firebase project with **Email/Password** authentication enabled ([Firebase Console](https://console.firebase.google.com)) 🔥
-- `backend-SafeTrust` running locally (Hasura + Postgres via Docker Compose) for GraphQL and auth-sync to work 🐳
 
 ---
 
