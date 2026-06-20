@@ -1,10 +1,8 @@
----
-
 # 🌟 SafeTrust 🌟
 
 **SafeTrust** is a decentralized P2P escrow platform targeting the hospitality and tourism sector. Powered by the Stellar blockchain via the TrustlessWork API, it replaces traditional deposit systems for hotels, vacation rentals, and booking platforms with trustless smart contracts that hold funds on-chain, release payments automatically on checkout confirmation, and handle disputes through transparent on-chain arbitration giving both guests and hosts a secure, verifiable alternative to legacy payment intermediaries. 🌐✨
 
-
+---
 ## 🚀 **Why Choose SafeTrust?**
 
 🔐 **Trustless Technology**: Secure and block deposits without intermediaries.
