@@ -155,7 +155,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 
-# TrustlessWork API
+# TrustlessWork API  (Optional, don't need it yet)
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_API_KEY=your_trustlesswork_api_key
 NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
