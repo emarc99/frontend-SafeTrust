@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Bell, Heart, Shield, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 
 interface SideBarProps {
   className?: string;
@@ -35,7 +36,7 @@ export function SideBar({
         className,
       )}
     >
-      <div className="flex flex-col items-start gap-4 py-4 px-2 lg:px-4">
+      <div className="flex flex-1 flex-col items-start gap-4 py-4 px-2 lg:px-4">
         <Link
           href="/dashboard/escrow"
           className={cn(
@@ -101,6 +102,9 @@ export function SideBar({
           <Users className="w-6 h-6 dark:text-gray-400" />
           <span>Users</span>
         </Link>
+      </div>
+      <div className="mt-auto w-full px-2 pb-4 pt-4 lg:px-4">
+        <LogoutButton />
       </div>
     </div>
   );
