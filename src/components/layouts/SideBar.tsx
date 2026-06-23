@@ -1,9 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Bell, Heart, Shield, Users } from "lucide-react";
+import { Bell, Building2, Heart, Shield, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 
 interface SideBarProps {
   className?: string;
@@ -35,7 +36,7 @@ export function SideBar({
         className,
       )}
     >
-      <div className="flex flex-col items-start gap-4 py-4 px-2 lg:px-4">
+      <div className="flex flex-1 flex-col items-start gap-4 py-4 px-2 lg:px-4">
         <Link
           href="/dashboard/escrow"
           className={cn(
@@ -53,7 +54,8 @@ export function SideBar({
           onClick={onClose}
           className={cn(
             "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/dashboard/escrow-dashboard" && "bg-accent font-medium dark:bg-gray-800 dark:text-white",
+            pathname === "/dashboard/escrow-dashboard" &&
+              "bg-accent font-medium dark:bg-gray-800 dark:text-white",
           )}
         >
           <Shield className="w-6 h-6 dark:text-gray-400" />
@@ -63,7 +65,23 @@ export function SideBar({
           </span>
         </Link>
         <Link
-          href="/dashboard/notifications"
+          href="/hotel"
+          onClick={onClose}
+          aria-label="Rent"
+          className={cn(
+            "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
+            pathname === "/hotel" &&
+              "bg-accent font-medium dark:bg-gray-800 dark:text-white",
+          )}
+        >
+          <Building2 className="w-6 h-6 shrink-0 dark:text-gray-400" />
+          <span className="md:hidden lg:block">Rent</span>
+          <span className="hidden md:group-hover:block lg:group-hover:hidden absolute left-14 bg-popover text-popover-foreground px-2 py-1 rounded shadow-md text-xs z-50 whitespace-nowrap">
+            Rent
+          </span>
+        </Link>
+        <Link
+          href="/notifications"
           onClick={onClose}
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full relative group dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
         >
@@ -95,12 +113,16 @@ export function SideBar({
           href="/dashboard/users"
           className={cn(
             "flex items-center gap-2 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/dashboard/users" && "bg-accent font-medium dark:bg-gray-800 dark:text-white",
+            pathname === "/dashboard/users" &&
+              "bg-accent font-medium dark:bg-gray-800 dark:text-white",
           )}
         >
           <Users className="w-6 h-6 dark:text-gray-400" />
           <span>Users</span>
         </Link>
+      </div>
+      <div className="mt-auto w-full px-2 pb-4 pt-4 lg:px-4">
+        <LogoutButton />
       </div>
     </div>
   );
