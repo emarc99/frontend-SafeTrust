@@ -203,26 +203,6 @@ If you start this repo on the default port while `landing-SafeTrust` is already 
 
 ---
 
-### **UI-only Testing (no Firebase required)**
-
-If you only need to inspect the dashboard UI without live Firebase auth, bypass the auth guard via the browser console:
-
-```js
-localStorage.setItem("walletAddress", "GBUILD_TEST_ADDRESS_HERE")
-```
-
-Then navigate directly to `http://localhost:3000/dashboard` (or `:3001` if you started this repo on the alternate port).
-
----
-
-## 📡 **API Reference**
-
-- **`/escrow/initiate`**: Start the escrow process and create agreements.
-- **`/escrow/fund`**: Securely fund the escrow account.
-- **`/escrow/complete`**: Complete the process and release funds to the appropriate party.
-
----
-
 ## 🛠️ **Tech Stack**
 
 - **Frontend**: TypeScript, Next.js 15, Tailwind CSS
