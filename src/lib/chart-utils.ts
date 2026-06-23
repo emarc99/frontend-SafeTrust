@@ -31,20 +31,29 @@ export interface ChartConfig {
 // Generate mock analytics data for demonstration
 export const generateMockData = (days: number = 30): AnalyticsData[] => {
   const data: AnalyticsData[] = [];
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+
+  // Normalize to start-of-day so the returned window is stable.
+  const endDate = new Date();
+  endDate.setHours(0, 0, 0, 0);
+
+  // Include today in the returned window.
+  const startDate = new Date(endDate);
+  startDate.setDate(startDate.getDate() - (days - 1));
 
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
 
-    // Generate realistic trending data with some variance
-    const basePageViews = 100 + i * 5 + Math.random() * 50;
-    const baseClicks = 20 + i * 2 + Math.random() * 10;
-    const baseUsers = 50 + i * 3 + Math.random() * 20;
+    // Deterministic variance based on index (stable across refreshes).
+    const wave = (Math.sin(i * 0.9) + 1) / 2; // 0..1
+    const noise = (Math.sin(i * 0.17 + 1.3) + 1) / 2; // 0..1
+
+    const basePageViews = 100 + i * 5 + wave * 50;
+    const baseClicks = 20 + i * 2 + noise * 10;
+    const baseUsers = 50 + i * 3 + wave * 20;
 
     data.push({
-      date: (date.toISOString() || "").split("T")[0],
+      date: date.toISOString().split("T")[0],
       pageViews: Math.floor(basePageViews),
       clicks: Math.floor(baseClicks),
       users: Math.floor(baseUsers),
