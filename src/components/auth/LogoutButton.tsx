@@ -11,19 +11,25 @@ import { useWallet } from "@/components/tw-blocks/wallet-kit/useWallet";
 export function LogoutButton() {
   const router = useRouter();
   const clearAuth = useGlobalAuthenticationStore((state) => state.clearAuth);
-  const { disconnectWallet } = useWallet();
+  const { handleDisconnect } = useWallet();
 
   const handleLogout = async () => {
-    await disconnectWallet();
-    await signOut(auth);
-    clearAuth();
-    router.push("/login");
+    await handleDisconnect();
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      clearAuth();
+      router.push("/login");
+    }
   };
 
   return (
     <Button
       onClick={handleLogout}
       variant="outline"
+      aria-label="Log out"
       className="flex items-center gap-2 w-full text-destructive hover:text-destructive cursor-pointer"
     >
       <LogOut className="w-4 h-4 shrink-0" />
