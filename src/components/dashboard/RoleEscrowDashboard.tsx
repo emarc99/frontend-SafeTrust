@@ -6,6 +6,7 @@ import { EscrowsByStatus } from "./EscrowsByStatus";
 import { RecentActivity } from "./RecentActivity";
 import { QuickActions } from "./QuickActions";
 import { EscrowTable } from "./EscrowTable";
+import { AnalyticsDashboard } from "./analytics";
 
 // Placeholder functions for notifications - in a real app, these would be API calls
 async function checkPendingNotifications(): Promise<NotificationData[]> {
@@ -97,6 +98,7 @@ export function RoleEscrowDashboard({
 }: RoleEscrowDashboardProps) {
   const [notifications, setNotifications] =
     useState<NotificationData[]>(initialNotifications);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const isMountedRef = useRef(true);
   const isPollingRef = useRef(false);
@@ -185,7 +187,12 @@ export function RoleEscrowDashboard({
       <div className="max-w-8xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
-          <DashboardHeader userRole={userRole} notifications={notifications} />
+          <DashboardHeader
+            userRole={userRole}
+            notifications={notifications}
+            showAnalytics={showAnalytics}
+            onToggleAnalytics={() => setShowAnalytics((prev) => !prev)}
+          />
         </div>
 
         {/* Stats and Overview Cards */}
@@ -316,6 +323,13 @@ export function RoleEscrowDashboard({
             </div>
           </div>
         </div>
+
+        {/* Analytics Panel (toggled from the header) */}
+        {showAnalytics && (
+          <div className="mb-6">
+            <AnalyticsDashboard />
+          </div>
+        )}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
