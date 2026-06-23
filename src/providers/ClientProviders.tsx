@@ -1,10 +1,20 @@
 "use client";
 
-import React from "react";
-import { ApolloClientProvider } from "./ApolloProviderWrapper";
+import { ApolloClientProvider } from "@/providers/ApolloProviderWrapper";
+import { QueryProvider } from "@/providers/QueryProvider";
+import { TrustlessWorkProvider } from "@/providers/TrustlessWorkProvider";
+import { WalletProvider } from "@/components/tw-blocks/wallet-kit/WalletProvider";
 
-export const ClientProviders: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return <ApolloClientProvider>{children}</ApolloClientProvider>;
-};
+export function ClientProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <ApolloClientProvider>
+      <QueryProvider>
+        <WalletProvider>
+          <TrustlessWorkProvider>
+            {children}
+          </TrustlessWorkProvider>
+        </WalletProvider>
+      </QueryProvider>
+    </ApolloClientProvider>
+  );
+}
