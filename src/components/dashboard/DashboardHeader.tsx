@@ -1,4 +1,4 @@
-import { Bell, BellRing, Menu } from 'lucide-react';
+import { Bell, BellRing, Menu, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,12 +13,16 @@ interface DashboardHeaderProps {
   userRole: 'guest' | 'hotel' | 'admin';
   notifications: NotificationData[];
   onMenuClick?: () => void;
+  showAnalytics?: boolean;
+  onToggleAnalytics?: () => void;
 }
 
-export function DashboardHeader({ 
-  userRole, 
+export function DashboardHeader({
+  userRole,
   notifications = [],
-  onMenuClick
+  onMenuClick,
+  showAnalytics = false,
+  onToggleAnalytics,
 }: DashboardHeaderProps) {
   const unreadCount = notifications.filter(n => !n.read).length;
   
@@ -41,7 +45,21 @@ export function DashboardHeader({
           <span className="sr-only">Toggle menu</span>
         </Button>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Escrow Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Escrow Dashboard</h1>
+            {onToggleAnalytics && (
+              <Button
+                variant={showAnalytics ? 'default' : 'outline'}
+                size="sm"
+                onClick={onToggleAnalytics}
+                className="gap-2"
+                aria-pressed={showAnalytics}
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </Button>
+            )}
+          </div>
           <p className="hidden sm:block text-sm text-muted-foreground">
             Welcome back! You're logged in as {roleLabels[userRole]}
           </p>

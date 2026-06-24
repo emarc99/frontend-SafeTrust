@@ -1,12 +1,8 @@
-
----
-
 # 🌟 SafeTrust 🌟
 
 **SafeTrust** is a decentralized P2P escrow platform targeting the hospitality and tourism sector. Powered by the Stellar blockchain via the TrustlessWork API, it replaces traditional deposit systems for hotels, vacation rentals, and booking platforms with trustless smart contracts that hold funds on-chain, release payments automatically on checkout confirmation, and handle disputes through transparent on-chain arbitration giving both guests and hosts a secure, verifiable alternative to legacy payment intermediaries. 🌐✨
 
 ---
-
 ## 🚀 **Why Choose SafeTrust?**
 
 🔐 **Trustless Technology**: Secure and block deposits without intermediaries.
@@ -48,6 +44,8 @@
 - Trustless Work API access ([docs here](https://docs.trustlesswork.com/trustless-work)) 📖
 - A Firebase project with **Email/Password** authentication enabled ([Firebase Console](https://console.firebase.google.com)) 🔥
 
+> 🧩 **This repo runs standalone.** `frontend-SafeTrust` does **not** require `backend-SafeTrust` to be running locally. It connects directly to a live Hasura GraphQL endpoint and to Firebase — both are remote services reachable over the network, not local processes you need to start. See [Architecture: Standalone vs. Monorepo](#-architecture-standalone-vs-monorepo) below for the full explanation.
+
 ---
 
 ### **Installation**
@@ -72,7 +70,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Then open `.env.local` and fill in the values — see the **Environment Variables** section below for exact instructions.
+Then open `.env.local` and fill in each value — follow the **Environment Variables** section below step by step. Do not commit `.env.local`; it is already covered by `.gitignore`.
 
 **4️⃣ Start the development server**
 
@@ -80,111 +78,128 @@ Then open `.env.local` and fill in the values — see the **Environment Variable
 npm run dev
 ```
 
+```
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.x.x:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 4s
+```
+
+This repo runs on **port 3000 by default**. You only need to override the port with `npm run dev -- --port 3001` if you are *also* running `landing-SafeTrust` locally at the same time — see [Port Conventions](#-port-conventions) below.
+
 ---
 
 ### **Environment Variables**
 
-All environment variables live in `.env.local` (never committed to git). Use `.env.example` as the template.
+Every environment variable lives in `.env.local` (never committed to git). Use `.env.example` as the template — copy it first, then fill in each block below one at a time.
 
-#### 🔥 Firebase Client SDK
+#### 🔥 1. Firebase Client SDK
 
-These come from the **Firebase Console**. Follow these steps:
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Select or create your project (SafeTrust uses project ID `safetrust-890d0`)
-3. Click the **gear icon** → **Project Settings**
-4. Scroll to **Your Apps** → select your Web app (or click **Add app** → Web if none exists)
-5. Under **SDK setup and configuration**, select **Config**
-6. Copy each value into your `.env.local`:
+These six values come from **Firebase Console → Project Settings → Your apps → Web app → SDK setup and configuration → Config**, and are required for Login, Register, and session auth to work:
 
 ```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...          # apiKey
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com  # authDomain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id               # projectId
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456:web:abc123                # appId
+NEXT_PUBLIC_FIREBASE_API_KEY=<your apiKey>
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<your-project-id>.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=<your-project-id>
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=<your-project-id>.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<your messagingSenderId>
+NEXT_PUBLIC_FIREBASE_APP_ID=<your appId>
 ```
 
-> ⚠️ These are **public browser-safe keys** — they are prefixed with `NEXT_PUBLIC_` intentionally. They are not the Firebase Admin SDK private key (which lives in `backend-SafeTrust` only and must never be exposed to the browser).
+> ℹ️ These are public, browser-safe values — Firebase ships them to the client by design, and the `NEXT_PUBLIC_` prefix is what makes Next.js expose them to the bundle. The real security boundary is **Firebase Security Rules**, not secrecy of these values. They are **not** the Firebase Admin SDK private key, which belongs only in `backend-SafeTrust` and must never appear here.
 
-**Enable Email/Password auth** (required for Register and Login to work):
+Make sure **Email/Password** sign-in is enabled in **Authentication → Sign-in method** for Register and Login to work. 📚 [Firebase Auth docs](https://firebase.google.com/docs/auth)
 
-1. In the Firebase Console → **Authentication** → **Sign-in method**
-2. Click **Email/Password** → toggle **Enable** → Save
+---
 
-#### 🌐 TrustlessWork API
+#### 🌐 2. TrustlessWork API (Optional, don't need it yet)
 
 ```bash
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
-NEXT_PUBLIC_API_KEY=your_trustlesswork_api_key        # obtain from TrustlessWork dashboard
+NEXT_PUBLIC_API_KEY=<your_trustlesswork_api_key>
 NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
-NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet                 # use 'testnet' for local development
+NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 ```
 
-Obtain your TrustlessWork API key from [docs.trustlesswork.com](https://docs.trustlesswork.com/trustless-work).
+- Obtain `NEXT_PUBLIC_API_KEY` from your [TrustlessWork dashboard](https://docs.trustlesswork.com/trustless-work)
+- Always use `testnet` for `NEXT_PUBLIC_TRUSTLESS_NETWORK` in local development — never point local dev at `mainnet`
 
-#### 🗄️ Hasura GraphQL
+---
+
+#### 🗄️ 3. Hasura GraphQL
 
 ```bash
-NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
+NEXT_PUBLIC_HASURA_GRAPHQL_URL=<your Hasura GraphQL endpoint>/v1/graphql
 ```
 
-This points to the Hasura instance running via Docker Compose in `backend-SafeTrust`. Make sure `docker compose up -d` is running before starting the frontend.
+This points to a **Hasura GraphQL endpoint** — typically the shared SafeTrust Hasura instance, reachable over the network. You do **not** need to clone, run, or Dockerize `backend-SafeTrust` to develop on this repo; just point this variable at a working Hasura URL and the frontend talks to it directly.
 
-> 🔒 `HASURA_GRAPHQL_ADMIN_SECRET` is intentionally absent from the frontend environment. The frontend authenticates via Firebase JWT — never via the admin secret. See `src/config/apollo.ts` for details.
-
-#### 🔗 Backend URL
-
-```bash
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
-```
-
-Points to the webhook/auth service from `backend-SafeTrust` running locally. Required for the Register flow to sync the new user to PostgreSQL.
+> 🔒 **`HASURA_GRAPHQL_ADMIN_SECRET` must never be set in this repository.** The frontend authenticates against Hasura via a **Firebase JWT**, not the admin secret. The admin secret grants unrestricted read/write access to the entire database and belongs **only** in `backend-SafeTrust`'s server-side environment — never in a `NEXT_PUBLIC_*` variable, never in `.env.local` here, and never committed anywhere. See `src/config/apollo.ts` for how the JWT-based auth header is attached to GraphQL requests.
+>
+> If you ever see `NEXT_PUBLIC_HASURA_ADMIN_SECRET` or similar in a `.env` file in this repo, treat it as a security incident — remove it and rotate the secret in `backend-SafeTrust` immediately.
 
 ---
 
 ### **Complete `.env.local` example**
 
 ```bash
-# Firebase Client SDK
+# Firebase Client SDK (public, browser-safe — see section 1 above)
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_APP_ID=1:123456:web:abc123
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 
-# TrustlessWork API
+# TrustlessWork API  (Optional, don't need it yet)
 NEXT_PUBLIC_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_API_KEY=your_trustlesswork_api_key
 NEXT_PUBLIC_TRUSTLESS_API_URL=https://api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_API_URL_DEV=https://dev.api.trustlesswork.com
 NEXT_PUBLIC_TRUSTLESS_NETWORK=testnet
 
-# Hasura GraphQL (backend-SafeTrust must be running)
-NEXT_PUBLIC_HASURA_GRAPHQL_URL=http://localhost:8080/v1/graphql
-
-# Backend auth/webhook service (backend-SafeTrust/webhook must be running)
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
+# Hasura GraphQL (a reachable endpoint — backend-SafeTrust does NOT need to run locally; NO admin secret here, ever)
+NEXT_PUBLIC_HASURA_GRAPHQL_URL=https://your-hasura-instance.example.com/v1/graphql
 ```
 
 ---
 
-### **UI-only Testing (no Firebase required)**
+### **🧩 Architecture: Standalone vs. Monorepo**
 
-If you only need to inspect the dashboard UI without live Firebase auth, bypass the auth guard via the browser console:
+SafeTrust ships as three separate repositories, but they can be run in two different ways depending on what you're working on:
 
-```js
-localStorage.setItem("walletAddress", "GBUILD_TEST_ADDRESS_HERE")
-```
+| Setup | What runs | When to use it |
+|---|---|---|
+| **`frontend-SafeTrust` standalone** (this repo) | Only `npm run dev` here. Connects to a remote/shared Hasura GraphQL endpoint and Firebase. No local backend, no Docker. | UI work, component development, dashboard features — most contributor tasks |
+| **`dApp-SafeTrust` monorepo** | Both frontend **and** backend (Hasura, Postgres, webhook service) run together via the monorepo's own tooling | Full-stack work that touches schema, mutations, or webhook behavior |
+| **`backend-SafeTrust` standalone** | Only the backend (Hasura + Postgres + webhook via Docker Compose), run independently | Backend-only contributors who don't need the UI |
 
-Then navigate directly to `http://localhost:3001/dashboard`.
+**For this repo (`frontend-SafeTrust`), you only need:**
+
+1. The six Firebase env vars (section 1 above)
+2. The TrustlessWork API vars (section 2 above)
+3. A working `NEXT_PUBLIC_HASURA_GRAPHQL_URL` pointing at a reachable Hasura instance (section 3 above)
+4. `npm run dev`
+
+You do **not** need to clone or run `backend-SafeTrust` to work on this repo. If you want a fully local, isolated backend instead of the shared instance, you can still clone `backend-SafeTrust` separately and point `NEXT_PUBLIC_HASURA_GRAPHQL_URL` at `http://localhost:8080/v1/graphql` — but that's optional, not a requirement to get this repo running.
 
 ---
 
-## 📡 **API Reference**
+### **🔢 Port Conventions**
 
-- **`/escrow/initiate`**: Start the escrow process and create agreements.
-- **`/escrow/fund`**: Securely fund the escrow account.
-- **`/escrow/complete`**: Complete the process and release funds to the appropriate party.
+This only matters if you're running **multiple SafeTrust repos at the same time** on the same machine (for example, `frontend-SafeTrust` alongside `landing-SafeTrust`). If you're only running this repo, `npm run dev` on its default port (`3000`) is all you need.
+
+| Repo | Port | Start command |
+|---|---|---|
+| `landing-SafeTrust` | `3000` | `npm run dev` |
+| `frontend-SafeTrust` (this repo) | `3000` (default) — use `3001` only if `landing-SafeTrust` is also running | `npm run dev` or `npm run dev -- --port 3001` |
+| `backend-SafeTrust` (optional, local backend) | `4000` (webhook), `8080` (Hasura) | `docker compose up -d` |
+
+If you start this repo on the default port while `landing-SafeTrust` is already running on `3000`, your browser may silently load the landing page instead of the dApp — and any runtime errors you see will actually belong to the landing repo, not this one.
 
 ---
 
