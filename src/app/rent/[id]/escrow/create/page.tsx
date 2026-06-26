@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { HotelHeader } from '@/components/hotel';
-import Link from 'next/link';
-import { use } from 'react';
+import { HotelHeader } from "@/components/hotel";
+import Link from "next/link";
+import { use } from "react";
 
 export default function HotelEscrowCreatePage({
   params,
@@ -31,13 +31,13 @@ export default function HotelEscrowCreatePage({
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href={`/hotel/${resolvedParams.id}`}
+              href={`/rent/${resolvedParams.id}`}
               className="rounded-[10px] border border-[#d7cdc4] px-5 py-3 text-sm font-medium text-[#282828]"
             >
               Back to apartment
             </Link>
             <Link
-              href="/hotel"
+              href="/rent"
               className="rounded-[10px] bg-[#ff6a00] px-5 py-3 text-sm font-semibold text-white"
             >
               Browse more apartments

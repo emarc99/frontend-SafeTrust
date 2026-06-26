@@ -21,8 +21,7 @@ export default function HotelEscrowDetailPage() {
   const stub = useMemo(() => getStubEscrow(escrowId), [escrowId]);
   const subscription = useEscrowSubscription(escrowId);
 
-  const isAwaitingSubscription =
-    subscription.loading && !subscription.escrow;
+  const isAwaitingSubscription = subscription.loading && !subscription.escrow;
 
   const effectiveStatus = subscription.escrow?.status ?? stub.status;
   const view = getViewForStatus(effectiveStatus);
@@ -34,7 +33,7 @@ export default function HotelEscrowDetailPage() {
   useEffect(() => {
     if (isAwaitingSubscription) return;
     if (view === "pending") {
-      router.replace(`/hotel/${hotelId}/escrow/create`);
+      router.replace(`/rent/${hotelId}/escrow/create`);
     }
   }, [view, hotelId, router, isAwaitingSubscription]);
 

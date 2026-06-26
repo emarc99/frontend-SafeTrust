@@ -65,12 +65,12 @@ export function SideBar({
           </span>
         </Link>
         <Link
-          href="/hotel"
+          href="/rent"
           onClick={onClose}
           aria-label="Rent"
           className={cn(
             "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/hotel" &&
+            pathname === "/rent" &&
               "bg-accent font-medium dark:bg-gray-800 dark:text-white",
           )}
         >

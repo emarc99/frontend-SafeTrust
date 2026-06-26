@@ -23,7 +23,7 @@ export default function GuestDashboard() {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   };
 
@@ -31,24 +31,30 @@ export default function GuestDashboard() {
     setSelectedLocations((prev) =>
       prev.includes(location)
         ? prev.filter((l) => l !== location)
-        : [...prev, location]
+        : [...prev, location],
     );
   };
 
   const handleApartmentClick = (apartment: HotelListing) => {
     console.log("apartment", apartment, " was clicked");
 
-    // router.push(`/hotel/${apartment.id}`);
+    // router.push(`/rent/${apartment.id}`);
   };
 
   // Derived filtered state
   const filteredApartments = STUB_HOTELS.filter((apt) => {
     // Category filter
-    if (selectedCategories.length > 0 && !selectedCategories.includes(apt.category)) {
+    if (
+      selectedCategories.length > 0 &&
+      !selectedCategories.includes(apt.category)
+    ) {
       return false;
     }
     // Location filter
-    if (selectedLocations.length > 0 && !selectedLocations.includes(apt.location)) {
+    if (
+      selectedLocations.length > 0 &&
+      !selectedLocations.includes(apt.location)
+    ) {
       return false;
     }
     // Bedroom filter (tabs: all | 1 | 2 | 3+)
@@ -85,10 +91,13 @@ export default function GuestDashboard() {
       <main className="flex-1 flex flex-col gap-8 p-6 md:p-10">
         <div>
           <h1 className="text-[28px]  text-[#1d1d1d] mb-1">
-            Available for rent in <span className="font-bold">Costa Rica, San José</span>
+            Available for rent in{" "}
+            <span className="font-bold">Costa Rica, San José</span>
           </h1>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <p className="text-[#8a8a8a] text-sm">{filteredApartments.length} units available</p>
+            <p className="text-[#8a8a8a] text-sm">
+              {filteredApartments.length} units available
+            </p>
             <div className="flex items-center text-sm font-medium">
               <span className="text-[#8a8a8a] mr-2 flex items-center gap-1">
                 <BsSortDownAlt className="h-4 w-4" />
@@ -96,8 +105,19 @@ export default function GuestDashboard() {
               </span>
               <span className="text-[#ff6a00] cursor-pointer flex items-center gap-1">
                 Relevance
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L5 5L9 1" stroke="#FF6A00" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  width="10"
+                  height="6"
+                  viewBox="0 0 10 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="#FF6A00"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </span>
             </div>
