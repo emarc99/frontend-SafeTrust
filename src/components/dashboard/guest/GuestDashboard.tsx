@@ -36,9 +36,7 @@ export default function GuestDashboard() {
   };
 
   const handleApartmentClick = (apartment: HotelListing) => {
-    console.log("apartment", apartment, " was clicked");
-
-    // router.push(`/rent/${apartment.id}`);
+    router.push(`/rent/${apartment.id}`);
   };
 
   // Derived filtered state
