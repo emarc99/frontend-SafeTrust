@@ -1,5 +1,3 @@
-// frontend-SafeTrust/src/hooks/useApartments.ts
-
 import { MOCK_APARTMENTS, Apartment } from "@/lib/mockData/apartments";
 
 interface UseApartmentsOptions {
@@ -20,18 +18,19 @@ interface UseApartmentsResult {
 /**
  * Drop-in replacement for Apollo's useQuery(GET_APARTMENTS, ...)
  * Returns the SAME shape so components don't need to change.
- *
- * In dApp-SafeTrust, this file is replaced/aliased to the real
- * Apollo useQuery hook against Hasura.
  */
 export function useApartments({
   limit,
   offset,
   search = "",
 }: UseApartmentsOptions): UseApartmentsResult {
-  const filtered = search
-    ? MOCK_APARTMENTS.filter((a) =>
-        a.name.toLowerCase().includes(search.toLowerCase())
+  const query = search.trim().toLowerCase();
+
+  const filtered = query
+    ? MOCK_APARTMENTS.filter(
+        (apartment) =>
+          apartment.name.toLowerCase().includes(query) ||
+          apartment.location.toLowerCase().includes(query),
       )
     : MOCK_APARTMENTS;
 
