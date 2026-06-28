@@ -14,11 +14,9 @@ export async function POST(request: Request) {
     const backendUrl = process.env.BACKEND_URL;
 
     if (!backendUrl) {
-      console.error("BACKEND_URL is not defined in environment variables");
-      return NextResponse.json(
-        { error: "Backend URL configuration error" },
-        { status: 500 },
-      );
+        // Backend not configured — skip sync silently in standalone mode
+        console.warn("BACKEND_URL not set — skipping user sync");
+        return NextResponse.json({ success: true, synced: false });
     }
 
     const response = await fetch(`${backendUrl}/api/auth/sync-user`, {
