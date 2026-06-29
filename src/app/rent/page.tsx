@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import type { HotelListing } from '@/@types/hotel';
+import type { HotelListing } from "@/@types/hotel";
 import {
   ApartmentGrid,
   BedroomTabs,
   FilterSidebar,
   HotelHeader,
-} from '@/components/hotel';
-import { STUB_HOTELS } from '@/lib/mockData/hotels';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import { BsSortDownAlt } from 'react-icons/bs';
+} from "@/components/hotel";
+import { STUB_HOTELS } from "@/lib/mockData/hotels";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { BsSortDownAlt } from "react-icons/bs";
 
-type SortOption = 'relevance' | 'price-low' | 'price-high';
+type SortOption = "relevance" | "price-low" | "price-high";
 
 export default function HotelListingPage() {
   const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    'Family',
-    'Students',
+    "Family",
+    "Students",
   ]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([
-    'San José',
-    'Heredia',
+    "San José",
+    "Heredia",
   ]);
-  const [selectedBedrooms, setSelectedBedrooms] = useState('all');
-  const [sortOption] = useState<SortOption>('relevance');
+  const [selectedBedrooms, setSelectedBedrooms] = useState("all");
+  const [sortOption] = useState<SortOption>("relevance");
   const [minPrice, setMinPrice] = useState(3200);
   const [maxPrice, setMaxPrice] = useState(206000);
 
@@ -38,7 +38,7 @@ export default function HotelListingPage() {
         selectedLocations.length === 0 ||
         selectedLocations.includes(apartment.location);
       const matchesBedroom =
-        selectedBedrooms === 'all' ||
+        selectedBedrooms === "all" ||
         apartment.bedrooms === Number(selectedBedrooms);
       const matchesPrice =
         apartment.price >= minPrice && apartment.price <= maxPrice;
@@ -48,16 +48,16 @@ export default function HotelListingPage() {
       );
     });
 
-    if (sortOption === 'price-low') {
+    if (sortOption === "price-low") {
       return [...apartments].sort((left, right) => left.price - right.price);
     }
 
-    if (sortOption === 'price-high') {
+    if (sortOption === "price-high") {
       return [...apartments].sort((left, right) => right.price - left.price);
     }
 
     return [...apartments].sort(
-      (left, right) => Number(right.promoted) - Number(left.promoted)
+      (left, right) => Number(right.promoted) - Number(left.promoted),
     );
   }, [
     maxPrice,
@@ -74,7 +74,7 @@ export default function HotelListingPage() {
       : [...values, value];
 
   const handleApartmentClick = (apartment: HotelListing) => {
-    router.push(`/hotel/${apartment.id}`);
+    router.push(`/rent/${apartment.id}`);
   };
 
   return (
@@ -101,7 +101,7 @@ export default function HotelListingPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h1 className="text-[24px] leading-tight text-[#1d1d1d] sm:text-[30px]">
-                Available for rent in{' '}
+                Available for rent in{" "}
                 <span className="font-semibold">Costa Rica, San José</span>
               </h1>
               <p className="mt-3 text-sm text-[#515151]">204 units available</p>

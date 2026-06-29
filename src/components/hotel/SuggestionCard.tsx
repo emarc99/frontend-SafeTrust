@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import { Heart } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { formatListingPrice } from './formatListingPrice';
+import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { formatListingPrice } from "./formatListingPrice";
 
 export interface SuggestionCardProps {
   id: string;
@@ -47,7 +47,7 @@ export default function SuggestionCard({
       return;
     }
 
-    router.push(`/hotel/${id}`);
+    router.push(`/rent/${id}`);
   };
 
   const handleLikeClick = () => {
@@ -58,8 +58,8 @@ export default function SuggestionCard({
   return (
     <div
       className={cn(
-        'group w-full rounded-[12px] border border-[#dfd9d2] bg-white p-3 shadow-sm transition',
-        'hover:border-[#cfc6bc] hover:shadow-md'
+        "group w-full rounded-[12px] border border-[#dfd9d2] bg-white p-3 shadow-sm transition",
+        "hover:border-[#cfc6bc] hover:shadow-md",
       )}
     >
       <div className="flex items-start gap-3">
@@ -71,7 +71,7 @@ export default function SuggestionCard({
         >
           <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[10px] bg-muted">
             <Image
-              src={image ?? '/img/hotel/hotel1.jpg'}
+              src={image ?? "/img/hotel/hotel1.jpg"}
               alt={name}
               fill
               sizes="60px"
@@ -91,7 +91,7 @@ export default function SuggestionCard({
 
             <div className="mt-3 flex items-end justify-between gap-3">
               <p className="text-xs text-muted-foreground">
-                {bedrooms}bd · {petFriendly ? 'pet friendly' : 'no pets'} ·{' '}
+                {bedrooms}bd · {petFriendly ? "pet friendly" : "no pets"} ·{" "}
                 {bathrooms} ba
               </p>
               <span className="text-right text-[1.75rem] font-semibold leading-none text-green-600">
@@ -111,8 +111,8 @@ export default function SuggestionCard({
           <Heart
             aria-hidden="true"
             className={cn(
-              'h-5 w-5 transition-colors',
-              liked ? 'fill-red-500 text-red-500' : 'text-red-500'
+              "h-5 w-5 transition-colors",
+              liked ? "fill-red-500 text-red-500" : "text-red-500",
             )}
           />
         </button>

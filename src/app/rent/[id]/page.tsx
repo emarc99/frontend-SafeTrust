@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 import {
   ApartmentDetail,
   HotelHeader,
   SuggestionsList,
-} from '@/components/hotel';
-import { getHotelById, getSuggestedHotels } from '@/lib/mockData/hotels';
-import { useRouter } from 'next/navigation';
-import { use } from 'react';
+} from "@/components/hotel";
+import { getHotelById, getSuggestedHotels } from "@/lib/mockData/hotels";
+import { useRouter } from "next/navigation";
+import { use } from "react";
 
 export default function HotelDetailPage({
   params,
@@ -26,11 +26,11 @@ export default function HotelDetailPage({
       <div className="mx-auto flex max-w-[1180px] flex-col lg:flex-row">
         <SuggestionsList
           apartments={suggestions}
-          onSelect={(id) => router.push(`/hotel/${id}`)}
+          onSelect={(id) => router.push(`/rent/${id}`)}
         />
         <ApartmentDetail
           apartment={apartment}
-          onBook={() => router.push(`/hotel/${apartment.id}/escrow/create`)}
+          onBook={() => router.push(`/rent/${apartment.id}/escrow/create`)}
         />
       </div>
     </div>

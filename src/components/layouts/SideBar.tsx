@@ -65,42 +65,12 @@ export function SideBar({
           </span>
         </Link>
         <Link
-          href="/dashboard/apartments"
-          onClick={onClose}
-          className={cn(
-            "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/dashboard/apartments" &&
-              "bg-accent font-medium dark:bg-gray-800 dark:text-white",
-          )}
-        >
-          <Home className="w-6 h-6 dark:text-gray-400" />
-          <span className="md:hidden lg:block">Apartments</span>
-          <span className="hidden md:group-hover:block lg:group-hover:hidden absolute left-14 bg-popover text-popover-foreground px-2 py-1 rounded shadow-md text-xs z-50 whitespace-nowrap">
-            Apartments
-          </span>
-        </Link>
-        <Link
-          href="/dashboard/apartments/new"
-          onClick={onClose}
-          className={cn(
-            "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/dashboard/apartments/new" &&
-              "bg-accent font-medium dark:bg-gray-800 dark:text-white",
-          )}
-        >
-          <PlusSquare className="w-6 h-6 dark:text-gray-400" />
-          <span className="md:hidden lg:block">New Apartment</span>
-          <span className="hidden md:group-hover:block lg:group-hover:hidden absolute left-14 bg-popover text-popover-foreground px-2 py-1 rounded shadow-md text-xs z-50 whitespace-nowrap">
-            New Apartment
-          </span>
-        </Link>
-        <Link
-          href="/hotel"
+          href="/rent"
           onClick={onClose}
           aria-label="Rent"
           className={cn(
             "flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors duration-200 w-full group relative dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
-            pathname === "/hotel" &&
+            pathname === "/rent" &&
               "bg-accent font-medium dark:bg-gray-800 dark:text-white",
           )}
         >
