@@ -1,4 +1,4 @@
-// frontend-SafeTrust/src/lib/mockData/apartments.ts
+import type { ApartmentOccupancyStatus } from "@/components/dashboard/apartments/ApartmentStatusBadge";
 
 export interface Apartment {
   id: string;
@@ -14,6 +14,10 @@ export interface Apartment {
     city?: string;
     country?: string;
   };
+  location: string;
+  offers: number;
+  status: ApartmentOccupancyStatus;
+  promoted: boolean;
   available_from: string;
   available_until?: string | null;
   created_at: string;
@@ -35,6 +39,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "San José",
       country: "Costa Rica",
     },
+    location: "San José",
+    offers: 2,
+    status: "inhabited",
+    promoted: true,
     available_from: "2026-06-01T00:00:00Z",
     available_until: null,
     created_at: "2026-05-20T10:00:00Z",
@@ -54,6 +62,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "San José",
       country: "Costa Rica",
     },
+    location: "San José",
+    offers: 5,
+    status: "not_inhabited",
+    promoted: false,
     available_from: "2026-06-15T00:00:00Z",
     available_until: null,
     created_at: "2026-05-18T08:30:00Z",
@@ -73,6 +85,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "Heredia",
       country: "Costa Rica",
     },
+    location: "Heredia",
+    offers: 7,
+    status: "not_inhabited",
+    promoted: false,
     available_from: "2026-07-01T00:00:00Z",
     available_until: "2026-12-31T00:00:00Z",
     created_at: "2026-05-10T14:00:00Z",
@@ -92,6 +108,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "San José",
       country: "Costa Rica",
     },
+    location: "San José",
+    offers: 1,
+    status: "inhabited",
+    promoted: false,
     available_from: "2026-06-10T00:00:00Z",
     available_until: null,
     created_at: "2026-05-05T09:00:00Z",
@@ -111,6 +131,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "San José",
       country: "Costa Rica",
     },
+    location: "San José",
+    offers: 2,
+    status: "inhabited",
+    promoted: true,
     available_from: "2026-06-20T00:00:00Z",
     available_until: null,
     created_at: "2026-05-01T11:00:00Z",
@@ -130,6 +154,10 @@ export const MOCK_APARTMENTS: Apartment[] = [
       city: "Alajuela",
       country: "Costa Rica",
     },
+    location: "Alajuela",
+    offers: 3,
+    status: "not_inhabited",
+    promoted: false,
     available_from: "2026-08-01T00:00:00Z",
     available_until: null,
     created_at: "2026-04-28T16:45:00Z",

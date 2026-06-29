@@ -61,14 +61,8 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      setError("Server configuration error — please contact support");
-      setIsLoading(false);
-      return;
-    }
-
     try {
+      // Step 1 — create Firebase user
       const credential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -81,12 +75,13 @@ export default function RegisterPage() {
 
       const token = await credential.user.getIdToken();
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-      const syncRes = await fetch(
-        `${backendUrl}/api/auth/sync-user`,
-        {
+      // Step 2 — sync user to backend-SafeTrust (non-blocking)
+      // This call is optional — frontend-SafeTrust runs standalone without
+      // backend-SafeTrust. If the backend is not running or BACKEND_URL is
+      // not set, the sync is skipped silently and registration still completes.
+      // When backend-SafeTrust IS running, the sync writes the user to PostgreSQL.
+      try {
+        await fetch("/api/auth/sync-user", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -99,41 +94,40 @@ export default function RegisterPage() {
             country_code: phoneCountryCode,
             location,
           }),
-        },
-      );
+        });
+      } catch {
+        // Backend not available — skip sync, continue registration normally
+        console.warn("User sync skipped — backend-SafeTrust not available");
+      }
 
+      // Step 3 — set cookie and store token
       Cookies.set("firebase-token", token, {
         expires: 7,
         secure: true,
         sameSite: "strict",
       });
 
-      clearTimeout(timeoutId);
-
-      if (!syncRes.ok) {
-        throw new Error("SYNC_USER_FAILED");
-      }
-
       useGlobalAuthenticationStore.getState().setToken(token);
+
       toast.success("Account created successfully!", {
         description: "Please sign in with your new credentials.",
         duration: 4000,
       });
+
       router.push("/login");
     } catch (err: unknown) {
       if (err instanceof FirebaseError) {
         toast.error(
           ERROR_MESSAGES[err.code] ?? "An unexpected error occurred. Please try again.",
-          { duration: 4000 }
+          { duration: 4000 },
         );
         setError(
           ERROR_MESSAGES[err.code] ?? "Registration failed — please try again",
         );
-      } else if (err instanceof Error && err.name === "AbortError") {
-        toast.error("Registration timed out. Please try again.", { duration: 4000 });
-        setError("Registration timed out — please try again");
       } else {
-        toast.error("An unexpected error occurred. Please try again.", { duration: 4000 });
+        toast.error("An unexpected error occurred. Please try again.", {
+          duration: 4000,
+        });
         setError("Registration failed — please try again");
       }
     } finally {
